@@ -1,0 +1,19 @@
+{
+  "name": "chugekimai-card-manager-v2",
+  "version": "1.0.0",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "tsc && electron .",
+    "dev": "tsc && electron . --disable-gpu --enable-transparent-visuals",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^22.7.1",
+    "electron": "^32.1.2",
+    "ts-node": "^10.9.2"
+  }
+}
