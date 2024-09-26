@@ -4,7 +4,6 @@ import * as path from 'path';
 let mainWindow: BrowserWindow | null;
 
 let tray : Tray | null = null;
-let overlayWindow = null;
 
 
 const createWindow = () => {
@@ -31,6 +30,8 @@ const createWindow = () => {
     mainWindow.loadFile('index.html');
 
     mainWindow.hide();
+
+    mainWindow.webContents.openDevTools();
 
     globalShortcut.register('F7', () => {
         showOverlay();

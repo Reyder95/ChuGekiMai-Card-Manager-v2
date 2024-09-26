@@ -1,24 +1,71 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
 body {
     background-color: black;
 }
 
 .card {
     border-radius: 10px;
-    height: 175px;
+    height: 100%;
     width: 250px;
     background-color: #333333;
-    padding: 4px 20px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+}
+
+.playerName {
+    position: absolute;
+    top: 25px !important;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: white;
+    text-align: center;
+    width: 80%;
     margin-left: auto;
     margin-right: auto;
 }
 
-.playerName {
+.cardId {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 30px !important;
     background-color: white;
+    text-align: center;
+    width: 90%;
+}
+
+.cardName {
+    color: white;
+}
+
+.cardList {
+    background-color: red !important;
+    height: 100%;
+}
+
+.section1 {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    height: 30vh;
+}
+
+.section2 {
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+    height: 60vh;
+}
+
+.textBoxes {
     text-align: center;
 }
 
-.cardId {
-    background-color: white;
+.textBoxDiv input {
     text-align: center;
-    margin-top: 80px;
+    width: 15%;
 }

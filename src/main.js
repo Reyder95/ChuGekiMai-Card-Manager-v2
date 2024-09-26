@@ -27,7 +27,6 @@ const electron_1 = require("electron");
 const path = __importStar(require("path"));
 let mainWindow;
 let tray = null;
-let overlayWindow = null;
 const createWindow = () => {
     tray = new electron_1.Tray(path.join(__dirname, "trayIcon.png"));
     const contextMenu = electron_1.Menu.buildFromTemplate([
@@ -48,6 +47,7 @@ const createWindow = () => {
     });
     mainWindow.loadFile('index.html');
     mainWindow.hide();
+    mainWindow.webContents.openDevTools();
     electron_1.globalShortcut.register('F7', () => {
         showOverlay();
     });
