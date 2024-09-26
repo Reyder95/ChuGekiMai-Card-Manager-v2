@@ -32,12 +32,12 @@ const createWindow = () => {
     tray = new electron_1.Tray(path.join(__dirname, "trayIcon.png"));
     const contextMenu = electron_1.Menu.buildFromTemplate([
         { label: 'Show Overlay', click: showOverlay },
-        { label: 'Quit', click: () => electron_1.app.quit() }
+        { label: 'Quit', click: quitApp }
     ]);
     tray.setToolTip('My Background App');
     tray.setContextMenu(contextMenu);
     mainWindow = new electron_1.BrowserWindow({
-        width: 800,
+        width: 400,
         height: 600,
         resizable: false,
         autoHideMenuBar: true,
@@ -46,17 +46,18 @@ const createWindow = () => {
             nodeIntegration: true
         }
     });
-    mainWindow.on("close", (event) => {
-        event.preventDefault();
-        mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.hide();
-    });
     mainWindow.loadFile('index.html');
     mainWindow.hide();
     electron_1.globalShortcut.register('F7', () => {
         showOverlay();
     });
 };
+const quitApp = () => {
+    electron_1.app.quit(); // Quit the application
+};
 const showOverlay = () => {
+    if (mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.isDestroyed())
+        createWindow();
     if (mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.isVisible()) {
         mainWindow.hide();
     }
@@ -65,8 +66,10 @@ const showOverlay = () => {
     }
 };
 electron_1.app.whenReady().then(() => { setTimeout(() => { createWindow(); }, 10); });
+electron_1.app.on('window-all-closed', (event) => {
+    event.preventDefault();
+    //app.quit();
+});
 electron_1.app.on('activate', () => {
-    if (mainWindow == null) {
-        createWindow();
-    }
+    createWindow();
 });

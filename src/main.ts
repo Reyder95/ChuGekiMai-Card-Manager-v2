@@ -11,14 +11,14 @@ const createWindow = () => {
     tray = new Tray(path.join(__dirname, "trayIcon.png"));
     const contextMenu = Menu.buildFromTemplate([
         { label: 'Show Overlay', click: showOverlay },
-        { label: 'Quit', click: () => app.quit() }
+        { label: 'Quit', click: quitApp}
     ])
 
     tray.setToolTip('My Background App');
     tray.setContextMenu(contextMenu);
 
     mainWindow = new BrowserWindow({
-        width: 800,
+        width: 400,
         height: 600,
         resizable: false,
         autoHideMenuBar: true,
@@ -26,11 +26,6 @@ const createWindow = () => {
         webPreferences: {
             nodeIntegration: true
         }
-    })
-
-    mainWindow.on("close", (event: any) => {
-        event.preventDefault();
-        mainWindow?.hide();
     })
 
     mainWindow.loadFile('index.html');
@@ -42,7 +37,14 @@ const createWindow = () => {
     })
 }
 
+const quitApp = () => {
+    app.quit(); // Quit the application
+};
+
 const showOverlay = () => {
+    if (mainWindow?.isDestroyed())
+        createWindow();
+
     if (mainWindow?.isVisible()) {
         mainWindow.hide();
     } else {
@@ -52,8 +54,12 @@ const showOverlay = () => {
 
 app.whenReady().then(() => { setTimeout(() => { createWindow() }, 10) });
 
+app.on('window-all-closed', (event: any) => {
+    event.preventDefault()
+    //app.quit();
+})
+
 app.on('activate', () => {
-    if (mainWindow == null) {
-        createWindow();
-    }
+    createWindow();
+    
 })

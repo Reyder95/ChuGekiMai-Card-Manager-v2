@@ -5,7 +5,21 @@
   "scripts": {
     "start": "tsc && electron .",
     "dev": "tsc && electron . --disable-gpu --enable-transparent-visuals",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.chugekimai-card-manager.id",
+    "productName": "ChuGekiMai Card Manager",
+    "files": [
+      "src/**/*",
+      "index.html",
+      "index.css"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    }
   },
   "keywords": [],
   "author": "",
@@ -14,6 +28,7 @@
   "devDependencies": {
     "@types/node": "^22.7.1",
     "electron": "^32.1.2",
+    "electron-builder": "^25.0.5",
     "ts-node": "^10.9.2"
   }
 }
