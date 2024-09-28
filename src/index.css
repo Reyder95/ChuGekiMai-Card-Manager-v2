@@ -69,3 +69,8 @@ body {
     text-align: center;
     width: 15%;
 }
+
+.nameInput {
+    margin-bottom: 15px;
+    text-align: center;
+}

@@ -4,7 +4,7 @@
   "main": "src/main.js",
   "scripts": {
     "start": "tsc && electron .",
-    "dev": "tsc && electron . --disable-gpu --enable-transparent-visuals",
+    "dev": "concurrently \"tsc -w\" \"electron .\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "electron-builder"
   },
@@ -27,8 +27,10 @@
   "description": "",
   "devDependencies": {
     "@types/node": "^22.7.1",
+    "concurrently": "^9.0.1",
     "electron": "^32.1.2",
     "electron-builder": "^25.0.5",
+    "electron-reload": "^2.0.0-alpha.1",
     "ts-node": "^10.9.2"
   }
 }

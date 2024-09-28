@@ -22,9 +22,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const path = __importStar(require("path"));
+const electron_reload_1 = __importDefault(require("electron-reload"));
+(0, electron_reload_1.default)(__dirname, {});
 let mainWindow;
 let tray = null;
 const createWindow = () => {
@@ -45,7 +50,8 @@ const createWindow = () => {
             nodeIntegration: true
         }
     });
-    mainWindow.loadFile('index.html');
+    console.log(__dirname);
+    mainWindow.loadFile('./src/index.html');
     mainWindow.hide();
     mainWindow.webContents.openDevTools();
     electron_1.globalShortcut.register('F7', () => {
@@ -65,7 +71,11 @@ const showOverlay = () => {
         mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.show();
     }
 };
-electron_1.app.whenReady().then(() => { setTimeout(() => { createWindow(); }, 10); });
+electron_1.app.whenReady().then(() => {
+    setTimeout(() => {
+        createWindow();
+    }, 10);
+});
 electron_1.app.on('window-all-closed', (event) => {
     event.preventDefault();
     //app.quit();

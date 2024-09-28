@@ -1,10 +1,14 @@
 import { app, BrowserWindow, Tray, Menu, globalShortcut } from 'electron';
 import * as path from 'path';
 
+import electronReload from 'electron-reload';
+electronReload(__dirname, {
+    
+});
+
 let mainWindow: BrowserWindow | null;
 
 let tray : Tray | null = null;
-
 
 const createWindow = () => {
     tray = new Tray(path.join(__dirname, "trayIcon.png"));
@@ -27,7 +31,9 @@ const createWindow = () => {
         }
     })
 
-    mainWindow.loadFile('index.html');
+    console.log(__dirname)
+
+    mainWindow.loadFile('./src/index.html');
 
     mainWindow.hide();
 
@@ -53,7 +59,11 @@ const showOverlay = () => {
     }
 }
 
-app.whenReady().then(() => { setTimeout(() => { createWindow() }, 10) });
+app.whenReady().then(() => { 
+
+    setTimeout(() => { createWindow() 
+
+    }, 10) });
 
 app.on('window-all-closed', (event: any) => {
     event.preventDefault()
