@@ -74,3 +74,45 @@ body {
     margin-bottom: 15px;
     text-align: center;
 }
+
+.addCardDiv {
+    text-align: right;
+    margin-right: 25px;
+}
+
+.addCardDiv button {
+    background-color: red !important;
+    padding: 5px;
+    font-weight: bold;
+    margin-top: 20px;
+    border: none;
+}
+
+.listDiv {
+    margin-top: 15px;
+    margin-left: 20px;
+    margin-right: 20px;
+    max-height: 220px !important;
+    overflow-y: scroll;
+    scrollbar-width: none; /* For Firefox */
+    -ms-overflow-style: none; /* For Internet Explorer and Edge */
+}
+
+/* For WebKit browsers (Chrome, Safari) */
+.listDiv::-webkit-scrollbar {
+    display: none; /* Hide the scroll bar */
+}
+
+.listElement {
+    background-color: white;
+    padding: 10px;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.listDiv p {
+    color: black;
+}
