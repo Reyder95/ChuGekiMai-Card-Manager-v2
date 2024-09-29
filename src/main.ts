@@ -1,10 +1,7 @@
-import { app, BrowserWindow, Tray, Menu, globalShortcut } from 'electron';
+import { app, BrowserWindow, Tray, Menu, globalShortcut, ipcMain, IpcMainInvokeEvent } from 'electron';
+import { CardData } from './interfaces'
 import * as path from 'path';
-
-import electronReload from 'electron-reload';
-electronReload(__dirname, {
-    
-});
+import * as fs from 'fs'
 
 let mainWindow: BrowserWindow | null;
 
@@ -27,7 +24,9 @@ const createWindow = () => {
         autoHideMenuBar: true,
         opacity: 0.8,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: false,
+            preload: path.join(__dirname, 'preload.js'),
+            contextIsolation: true,                      // Isolate context for security
         }
     })
 
@@ -73,4 +72,32 @@ app.on('window-all-closed', (event: any) => {
 app.on('activate', () => {
     createWindow();
     
+})
+
+// TODO: Fix error "any"
+ipcMain.handle('read-json-file', (event: IpcMainInvokeEvent, fileName: string) : CardData | any => {
+    const filePath = path.join(app.getAppPath(), fileName);
+
+    try {
+        const data = fs.readFileSync(filePath, 'utf-8');
+        return JSON.parse(data) as CardData;
+    } catch (error: any) {
+        return { error: error.message }
+    }
+})
+
+ipcMain.handle('write-json-file', (eent: IpcMainInvokeEvent, fileName: string, data: CardData) => {
+    const filePath = path.join(app.getAppPath(), fileName);
+
+    console.log(filePath);
+
+    try {
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+    } catch (error: any) {
+        return { error: error.message }
+    }
+})
+
+ipcMain.handle('get-app-path', () => {
+    return app.getAppPath();
 })

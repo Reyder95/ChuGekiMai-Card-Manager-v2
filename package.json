@@ -2,6 +2,7 @@
   "name": "chugekimai-card-manager-v2",
   "version": "1.0.0",
   "main": "src/main.js",
+  "types": "src/index.d.ts",
   "scripts": {
     "start": "tsc && electron .",
     "dev": "concurrently \"tsc -w\" \"electron .\"",
@@ -16,6 +17,7 @@
       "index.html",
       "index.css"
     ],
+    "asar": false,
     "win": {
       "target": "nsis",
       "icon": "build/icon.ico"
@@ -26,7 +28,7 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "@types/node": "^22.7.1",
+    "@types/node": "^22.7.4",
     "concurrently": "^9.0.1",
     "electron": "^32.1.2",
     "electron-builder": "^25.0.5",

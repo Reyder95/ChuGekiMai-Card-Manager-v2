@@ -19,9 +19,9 @@
             <div class="section2">
                 <div class="textBoxes">
                     <form>
-                        <input class="nameInput" type="text" placeholder="Card Name"/>
+                        <input id="nameInput" class="nameInput" type="text" placeholder="Card Name"/>
                         <div class="textBoxDiv">
-                            <input class="idInput" type="text" placeholder="0000"/> 
+                            <input class="idInput" type="text" placeholder="0000"/>
                             <input class="idInput" type="text" placeholder="0000"/> 
                             <input class="idInput" type="text" placeholder="0000"/> 
                             <input class="idInput" type="text" placeholder="0000"/> 
@@ -32,7 +32,7 @@
 
                 </div>
                 <div class="addCardDiv">
-                    <button>Add Card</button>
+                    <button id="addCardButton">Add Card</button>
                 </div>
 
                 <div class="listDiv">
@@ -88,6 +88,7 @@
             </div>
         </div>
 
-        <script src="./src/renderer.js"></script>
+        <script>var exports = {};</script>
+        <script src="renderer.js"></script>
     </body>
 </html>

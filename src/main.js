@@ -22,14 +22,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const path = __importStar(require("path"));
-const electron_reload_1 = __importDefault(require("electron-reload"));
-(0, electron_reload_1.default)(__dirname, {});
+const fs = __importStar(require("fs"));
 let mainWindow;
 let tray = null;
 const createWindow = () => {
@@ -47,7 +43,9 @@ const createWindow = () => {
         autoHideMenuBar: true,
         opacity: 0.8,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: false,
+            preload: path.join(__dirname, 'preload.js'),
+            contextIsolation: true, // Isolate context for security
         }
     });
     console.log(__dirname);
@@ -82,4 +80,28 @@ electron_1.app.on('window-all-closed', (event) => {
 });
 electron_1.app.on('activate', () => {
     createWindow();
+});
+// TODO: Fix error "any"
+electron_1.ipcMain.handle('read-json-file', (event, fileName) => {
+    const filePath = path.join(electron_1.app.getAppPath(), fileName);
+    try {
+        const data = fs.readFileSync(filePath, 'utf-8');
+        return JSON.parse(data);
+    }
+    catch (error) {
+        return { error: error.message };
+    }
+});
+electron_1.ipcMain.handle('write-json-file', (eent, fileName, data) => {
+    const filePath = path.join(electron_1.app.getAppPath(), fileName);
+    console.log(filePath);
+    try {
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+    }
+    catch (error) {
+        return { error: error.message };
+    }
+});
+electron_1.ipcMain.handle('get-app-path', () => {
+    return electron_1.app.getAppPath();
 });

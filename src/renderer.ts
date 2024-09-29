@@ -1,8 +1,29 @@
-console.log("Hello from the renderer process!");
+import { CardData } from './interfaces'
 
 const idInputs = document.getElementsByClassName("idInput");
 
 const firstInput = idInputs[0] as HTMLInputElement;
+
+async function readJsonFile(fileName: string): Promise<any> {
+    const result = await window.electronAPI.readJsonFile(fileName);
+
+    if (result.error) {
+        console.error("Error reading from a JSON file: ", result.error);
+        return null;
+    }
+
+    return result;
+}
+
+async function writeJsonFile(fileName: string, data: CardData): Promise<void> {
+
+    try {
+        window.electronAPI.writeJsonFile(fileName, data).then(() => console.log("Data written successfully!"))
+        window.electronAPI.getAppPath().then((path) => console.log(path))
+    } catch (error: any) {
+        console.error("Error writing data", error);
+    }
+}
 
 firstInput.addEventListener('paste', (event) => {
     event.preventDefault();
@@ -40,4 +61,27 @@ for (let i = 0; i < idInputs.length; i++) {
         }
             
     })
+}
+
+document.getElementById('addCardButton')?.addEventListener('click', () => {
+    const inputData = document.getElementsByClassName('idInput');
+    const inputName = document.getElementById("nameInput");
+    
+    let totalInput = '';
+
+    for (let i = 0; i < inputData.length; i++) {
+        const currInput = inputData[i] as HTMLInputElement;
+
+        totalInput += currInput.value;
+    }
+
+    if (totalInput.length == 20 && (inputName as HTMLInputElement).value.length !== 0)
+        confirmCardForm(totalInput, (inputName as HTMLInputElement).value)
+
+})
+
+function confirmCardForm(totalInput : string, inputName: string) {
+    let newData : CardData = { id: totalInput, name: inputName }
+
+    writeJsonFile('cards.json', newData);
 }

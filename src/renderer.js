@@ -1,7 +1,38 @@
 "use strict";
-console.log("Hello from the renderer process!");
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var _a;
+Object.defineProperty(exports, "__esModule", { value: true });
 const idInputs = document.getElementsByClassName("idInput");
 const firstInput = idInputs[0];
+function readJsonFile(fileName) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const result = yield window.electronAPI.readJsonFile(fileName);
+        if (result.error) {
+            console.error("Error reading from a JSON file: ", result.error);
+            return null;
+        }
+        return result;
+    });
+}
+function writeJsonFile(fileName, data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            window.electronAPI.writeJsonFile(fileName, data).then(() => console.log("Data written successfully!"));
+            window.electronAPI.getAppPath().then((path) => console.log(path));
+        }
+        catch (error) {
+            console.error("Error writing data", error);
+        }
+    });
+}
 firstInput.addEventListener('paste', (event) => {
     event.preventDefault();
     const clipboardData = event.clipboardData;
@@ -29,4 +60,19 @@ for (let i = 0; i < idInputs.length; i++) {
                 currElement.value = currElement.value.slice(0, 4);
         }
     });
+}
+(_a = document.getElementById('addCardButton')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
+    const inputData = document.getElementsByClassName('idInput');
+    const inputName = document.getElementById("nameInput");
+    let totalInput = '';
+    for (let i = 0; i < inputData.length; i++) {
+        const currInput = inputData[i];
+        totalInput += currInput.value;
+    }
+    if (totalInput.length == 20 && inputName.value.length !== 0)
+        confirmCardForm(totalInput, inputName.value);
+});
+function confirmCardForm(totalInput, inputName) {
+    let newData = { id: totalInput, name: inputName };
+    writeJsonFile('cards.json', newData);
 }
