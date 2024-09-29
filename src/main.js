@@ -93,7 +93,8 @@ electron_1.ipcMain.handle('read-json-file', (event, fileName) => {
     }
 });
 electron_1.ipcMain.handle('write-json-file', (eent, fileName, data) => {
-    const filePath = path.join(electron_1.app.getAppPath(), fileName);
+    const exeDirectory = path.join(electron_1.app.getAppPath(), '../..');
+    const filePath = path.join(exeDirectory, fileName);
     console.log(filePath);
     try {
         fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
