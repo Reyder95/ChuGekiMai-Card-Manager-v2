@@ -1,6 +1,7 @@
 import { CardData } from './interfaces'
 
 let cards : CardData[] = [];
+let mainCardIndex = -1;
 
 const idInputs = document.getElementsByClassName("idInput");
 
@@ -42,22 +43,50 @@ function getRandomArbitrary(min: number, max: number) {
     return Math.floor(Math.random() * (max - min) + min);
 }
 
-function printCardsToScreen(data: CardData[]) {
+function printCardsToScreen() {
     const listDiv = document.getElementById('listDiv');
     if (listDiv)
         listDiv.innerHTML = '';
-    for (let i = 0; i < data.length; i++) {
+    for (let i = 0; i < cards.length; i++) {
         
         const htmlCode = `
             <div class="listElement">
-                <p>${data[i].name}</p>
-                <p>Add</p>
+                <p>${cards[i].name}</p>
+                <div class="cardButtons">
+                    <span data-index="${i}" id="checkIcon" class="material-icons cardIcon">check</span>
+                    <span data-index="${i}" id="clearIcon" class="material-icons cardIcon">clear</span>             
+                </div>
+
             </div>
         `;
     
         if (listDiv)
             listDiv.innerHTML += htmlCode;
     }
+
+    const cardListElements = listDiv?.getElementsByClassName("cardButtons");
+
+    if (cardListElements) {
+        for (let i = 0; i < cardListElements.length; i++) {
+            const currElement = cardListElements[i] as HTMLDivElement;
+            currElement.querySelector('#checkIcon')?.addEventListener("click", (event) => {
+                const button = event.target as HTMLSpanElement;
+                if (button) {
+                    mainCardIndex = Number(button.dataset.index);
+                    const topCard = document.getElementById("topCard");
+                    if (topCard) {
+                        topCard.innerHTML = `
+                            <h3 class="playerName">${cards[mainCardIndex].name}</h3>
+                            <h3 class="cardId">${cards[mainCardIndex].id}</h3>
+                        `
+                    }
+                    
+
+                }
+            })
+        }
+    }
+
 }
 
 firstInput.addEventListener('paste', (event) => {
@@ -133,6 +162,6 @@ document.getElementById('generateCardButton')?.addEventListener('click', () => {
 
 readJsonFile('cards.json')
 .then((data: CardData[]) => {
-    printCardsToScreen(data);
+    printCardsToScreen();
 })
 

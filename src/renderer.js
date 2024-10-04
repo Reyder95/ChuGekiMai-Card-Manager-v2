@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 let cards = [];
+let mainCardIndex = -1;
 const idInputs = document.getElementsByClassName("idInput");
 const firstInput = idInputs[0];
 function readJsonFile(fileName) {
@@ -44,19 +45,43 @@ function confirmCardForm(totalInput, inputName) {
 function getRandomArbitrary(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
 }
-function printCardsToScreen(data) {
+function printCardsToScreen() {
+    var _a;
     const listDiv = document.getElementById('listDiv');
     if (listDiv)
         listDiv.innerHTML = '';
-    for (let i = 0; i < data.length; i++) {
+    for (let i = 0; i < cards.length; i++) {
         const htmlCode = `
             <div class="listElement">
-                <p>${data[i].name}</p>
-                <p>Add</p>
+                <p>${cards[i].name}</p>
+                <div class="cardButtons">
+                    <span data-index="${i}" id="checkIcon" class="material-icons cardIcon">check</span>
+                    <span data-index="${i}" id="clearIcon" class="material-icons cardIcon">clear</span>             
+                </div>
+
             </div>
         `;
         if (listDiv)
             listDiv.innerHTML += htmlCode;
+    }
+    const cardListElements = listDiv === null || listDiv === void 0 ? void 0 : listDiv.getElementsByClassName("cardButtons");
+    if (cardListElements) {
+        for (let i = 0; i < cardListElements.length; i++) {
+            const currElement = cardListElements[i];
+            (_a = currElement.querySelector('#checkIcon')) === null || _a === void 0 ? void 0 : _a.addEventListener("click", (event) => {
+                const button = event.target;
+                if (button) {
+                    mainCardIndex = Number(button.dataset.index);
+                    const topCard = document.getElementById("topCard");
+                    if (topCard) {
+                        topCard.innerHTML = `
+                            <h3 class="playerName">${cards[mainCardIndex].name}</h3>
+                            <h3 class="cardId">${cards[mainCardIndex].id}</h3>
+                        `;
+                    }
+                }
+            });
+        }
     }
 }
 firstInput.addEventListener('paste', (event) => {
@@ -112,5 +137,5 @@ for (let i = 0; i < idInputs.length; i++) {
 });
 readJsonFile('cards.json')
     .then((data) => {
-    printCardsToScreen(data);
+    printCardsToScreen();
 });

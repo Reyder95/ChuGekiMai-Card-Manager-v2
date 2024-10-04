@@ -116,3 +116,30 @@ body {
 #listDiv p {
     color: black;
 }
+
+.cardButtons {
+    display: flex;
+    align-items: center;
+}
+
+.cardIcon {
+    margin-left: 5px;
+    margin-right: 5px;
+    font-weight: 800 !important;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: 0.2s;
+}
+
+.cardIcon:hover {
+    opacity: 1.0;
+    transition: 0.2s;
+}
+
+#checkIcon {
+    color: green;
+}
+
+#clearIcon {
+    color: red;
+}
