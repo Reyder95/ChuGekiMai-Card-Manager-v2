@@ -80,8 +80,28 @@ document.getElementById('addCardButton')?.addEventListener('click', () => {
 
 })
 
+document.getElementById('generateCardButton')?.addEventListener('click', () => {
+    const inputData = document.getElementsByClassName('idInput');
+    console.log(inputData);
+
+    for (let i = 0; i < inputData.length; i++) {
+        const currInput = inputData[i] as HTMLInputElement;
+        let rand4: string = String(getRandomArbitrary(0, 9999));
+        rand4 = rand4.padStart(4, '0');
+        if (rand4[0] === '3' && i == 0)
+            rand4 = '4' + rand4.substring(1);
+
+        currInput.value = rand4;
+        
+    }
+})
+
 function confirmCardForm(totalInput : string, inputName: string) {
     let newData : CardData = { id: totalInput, name: inputName }
 
     writeJsonFile('cards.json', newData);
+}
+
+function getRandomArbitrary(min: number, max: number) {
+    return Math.floor(Math.random() * (max - min) + min);
 }

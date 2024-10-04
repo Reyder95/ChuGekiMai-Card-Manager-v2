@@ -83,7 +83,8 @@ electron_1.app.on('activate', () => {
 });
 // TODO: Fix error "any"
 electron_1.ipcMain.handle('read-json-file', (event, fileName) => {
-    const filePath = path.join(electron_1.app.getAppPath(), fileName);
+    const exeDirectory = path.join(electron_1.app.getAppPath(), '../..');
+    const filePath = path.join(exeDirectory, fileName);
     try {
         const data = fs.readFileSync(filePath, 'utf-8');
         return JSON.parse(data);
