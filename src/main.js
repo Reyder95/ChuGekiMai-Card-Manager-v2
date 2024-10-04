@@ -83,7 +83,11 @@ electron_1.app.on('activate', () => {
 });
 // TODO: Fix error "any"
 electron_1.ipcMain.handle('read-json-file', (event, fileName) => {
-    const exeDirectory = path.join(electron_1.app.getAppPath(), '../..');
+    let exeDirectory;
+    if (electron_1.app.isPackaged)
+        exeDirectory = path.join(electron_1.app.getAppPath(), '../..');
+    else
+        exeDirectory = electron_1.app.getAppPath();
     const filePath = path.join(exeDirectory, fileName);
     try {
         const data = fs.readFileSync(filePath, 'utf-8');
@@ -93,10 +97,15 @@ electron_1.ipcMain.handle('read-json-file', (event, fileName) => {
         return { error: error.message };
     }
 });
-electron_1.ipcMain.handle('write-json-file', (eent, fileName, data) => {
-    const exeDirectory = path.join(electron_1.app.getAppPath(), '../..');
+electron_1.ipcMain.handle('write-json-file', (event, fileName, data) => {
+    let exeDirectory;
+    if (electron_1.app.isPackaged)
+        exeDirectory = path.join(electron_1.app.getAppPath(), '../..');
+    else
+        exeDirectory = electron_1.app.getAppPath();
     const filePath = path.join(exeDirectory, fileName);
     console.log(filePath);
+    console.log(electron_1.app.isPackaged);
     try {
         fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
     }

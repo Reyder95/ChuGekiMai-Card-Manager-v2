@@ -10,11 +10,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
+let cards = [];
 const idInputs = document.getElementsByClassName("idInput");
 const firstInput = idInputs[0];
 function readJsonFile(fileName) {
     return __awaiter(this, void 0, void 0, function* () {
         const result = yield window.electronAPI.readJsonFile(fileName);
+        cards = result;
         if (result.error) {
             console.error("Error reading from a JSON file: ", result.error);
             return null;
@@ -32,6 +34,30 @@ function writeJsonFile(fileName, data) {
             console.error("Error writing data", error);
         }
     });
+}
+function confirmCardForm(totalInput, inputName) {
+    let newData = { id: totalInput, name: inputName };
+    cards.push(newData);
+    printCardsToScreen(cards);
+    writeJsonFile('cards.json', cards);
+}
+function getRandomArbitrary(min, max) {
+    return Math.floor(Math.random() * (max - min) + min);
+}
+function printCardsToScreen(data) {
+    const listDiv = document.getElementById('listDiv');
+    if (listDiv)
+        listDiv.innerHTML = '';
+    for (let i = 0; i < data.length; i++) {
+        const htmlCode = `
+            <div class="listElement">
+                <p>${data[i].name}</p>
+                <p>Add</p>
+            </div>
+        `;
+        if (listDiv)
+            listDiv.innerHTML += htmlCode;
+    }
 }
 firstInput.addEventListener('paste', (event) => {
     event.preventDefault();
@@ -84,10 +110,7 @@ for (let i = 0; i < idInputs.length; i++) {
         currInput.value = rand4;
     }
 });
-function confirmCardForm(totalInput, inputName) {
-    let newData = { id: totalInput, name: inputName };
-    writeJsonFile('cards.json', newData);
-}
-function getRandomArbitrary(min, max) {
-    return Math.floor(Math.random() * (max - min) + min);
-}
+readJsonFile('cards.json')
+    .then((data) => {
+    printCardsToScreen(data);
+});

@@ -1,11 +1,15 @@
 import { CardData } from './interfaces'
 
+let cards : CardData[] = [];
+
 const idInputs = document.getElementsByClassName("idInput");
 
 const firstInput = idInputs[0] as HTMLInputElement;
 
 async function readJsonFile(fileName: string): Promise<any> {
     const result = await window.electronAPI.readJsonFile(fileName);
+
+    cards = result;
 
     if (result.error) {
         console.error("Error reading from a JSON file: ", result.error);
@@ -15,13 +19,44 @@ async function readJsonFile(fileName: string): Promise<any> {
     return result;
 }
 
-async function writeJsonFile(fileName: string, data: CardData): Promise<void> {
+async function writeJsonFile(fileName: string, data: CardData[]): Promise<void> {
 
     try {
         window.electronAPI.writeJsonFile(fileName, data).then(() => console.log("Data written successfully!"))
         window.electronAPI.getAppPath().then((path) => console.log(path))
     } catch (error: any) {
         console.error("Error writing data", error);
+    }
+}
+
+function confirmCardForm(totalInput : string, inputName: string) {
+    let newData : CardData = { id: totalInput, name: inputName }
+    cards.push(newData);
+
+    printCardsToScreen(cards);
+
+    writeJsonFile('cards.json', cards);
+}
+
+function getRandomArbitrary(min: number, max: number) {
+    return Math.floor(Math.random() * (max - min) + min);
+}
+
+function printCardsToScreen(data: CardData[]) {
+    const listDiv = document.getElementById('listDiv');
+    if (listDiv)
+        listDiv.innerHTML = '';
+    for (let i = 0; i < data.length; i++) {
+        
+        const htmlCode = `
+            <div class="listElement">
+                <p>${data[i].name}</p>
+                <p>Add</p>
+            </div>
+        `;
+    
+        if (listDiv)
+            listDiv.innerHTML += htmlCode;
     }
 }
 
@@ -96,12 +131,8 @@ document.getElementById('generateCardButton')?.addEventListener('click', () => {
     }
 })
 
-function confirmCardForm(totalInput : string, inputName: string) {
-    let newData : CardData = { id: totalInput, name: inputName }
+readJsonFile('cards.json')
+.then((data: CardData[]) => {
+    printCardsToScreen(data);
+})
 
-    writeJsonFile('cards.json', newData);
-}
-
-function getRandomArbitrary(min: number, max: number) {
-    return Math.floor(Math.random() * (max - min) + min);
-}

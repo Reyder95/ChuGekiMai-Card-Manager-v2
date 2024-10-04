@@ -88,7 +88,7 @@ body {
     border: none;
 }
 
-.listDiv {
+#listDiv {
     margin-top: 15px;
     margin-left: 20px;
     margin-right: 20px;
@@ -99,7 +99,7 @@ body {
 }
 
 /* For WebKit browsers (Chrome, Safari) */
-.listDiv::-webkit-scrollbar {
+#listDiv::-webkit-scrollbar {
     display: none; /* Hide the scroll bar */
 }
 
@@ -113,6 +113,6 @@ body {
     justify-content: space-between;
 }
 
-.listDiv p {
+#listDiv p {
     color: black;
 }

@@ -76,7 +76,13 @@ app.on('activate', () => {
 
 // TODO: Fix error "any"
 ipcMain.handle('read-json-file', (event: IpcMainInvokeEvent, fileName: string) : CardData | any => {
-    const exeDirectory = path.join(app.getAppPath(), '../..');
+    let exeDirectory;
+    
+    if (app.isPackaged)
+        exeDirectory = path.join(app.getAppPath(), '../..');
+    else
+        exeDirectory = app.getAppPath();
+    
     const filePath = path.join(exeDirectory, fileName);
 
     try {
@@ -87,11 +93,17 @@ ipcMain.handle('read-json-file', (event: IpcMainInvokeEvent, fileName: string) :
     }
 })
 
-ipcMain.handle('write-json-file', (eent: IpcMainInvokeEvent, fileName: string, data: CardData) => {
-    const exeDirectory = path.join(app.getAppPath(), '../..');
+ipcMain.handle('write-json-file', (event: IpcMainInvokeEvent, fileName: string, data: CardData[]) => {
+    let exeDirectory;
+    
+    if (app.isPackaged)
+        exeDirectory = path.join(app.getAppPath(), '../..');
+    else
+        exeDirectory = app.getAppPath();
     const filePath = path.join(exeDirectory, fileName);
 
     console.log(filePath);
+    console.log(app.isPackaged);
 
     try {
         fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
