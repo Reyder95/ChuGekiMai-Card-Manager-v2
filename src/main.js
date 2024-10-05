@@ -50,6 +50,7 @@ else {
             width: 400,
             height: 600,
             autoHideMenuBar: true,
+            resizable: false,
             opacity: 0.8,
             webPreferences: {
                 nodeIntegration: false,
