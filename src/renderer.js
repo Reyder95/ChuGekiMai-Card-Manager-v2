@@ -112,9 +112,12 @@ function printCardsToScreen() {
                 const button = event.target;
                 if (button) {
                     const index = Number(button.dataset.index);
-                    cards.splice(index, 1);
-                    printCardsToScreen();
-                    writeJsonFile('cards.json', cards);
+                    const userConfirmed = confirm(`Are you sure you want to delete ${cards[index].name}'s profile?`);
+                    if (userConfirmed) {
+                        cards.splice(index, 1);
+                        printCardsToScreen();
+                        writeJsonFile('cards.json', cards);
+                    }
                 }
             });
         }

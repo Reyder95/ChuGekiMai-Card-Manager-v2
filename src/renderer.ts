@@ -121,11 +121,16 @@ function printCardsToScreen() {
 
                 if (button) {
                     const index = Number(button.dataset.index);
-                    cards.splice(index, 1);
+                    const userConfirmed = confirm(`Are you sure you want to delete ${cards[index].name}'s profile?`);
 
-                    printCardsToScreen();
+                    if (userConfirmed) {
+                        cards.splice(index, 1);
 
-                    writeJsonFile('cards.json', cards);
+                        printCardsToScreen();
+    
+                        writeJsonFile('cards.json', cards);
+                    }
+
                 }
             })
         }
