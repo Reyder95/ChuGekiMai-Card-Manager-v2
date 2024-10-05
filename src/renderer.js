@@ -67,7 +67,7 @@ function getRandomArbitrary(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
 }
 function printCardsToScreen() {
-    var _a;
+    var _a, _b;
     const listDiv = document.getElementById('listDiv');
     if (listDiv)
         listDiv.innerHTML = '';
@@ -106,6 +106,15 @@ function printCardsToScreen() {
                         `;
                         writeAimeFile('aime.txt', cards[mainCardIndex].id);
                     }
+                }
+            });
+            (_b = currElement.querySelector('#clearIcon')) === null || _b === void 0 ? void 0 : _b.addEventListener("click", (event) => {
+                const button = event.target;
+                if (button) {
+                    const index = Number(button.dataset.index);
+                    cards.splice(index, 1);
+                    printCardsToScreen();
+                    writeJsonFile('cards.json', cards);
                 }
             });
         }

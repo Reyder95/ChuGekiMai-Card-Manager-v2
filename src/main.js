@@ -49,7 +49,6 @@ else {
         mainWindow = new electron_1.BrowserWindow({
             width: 400,
             height: 600,
-            resizable: false,
             autoHideMenuBar: true,
             opacity: 0.8,
             webPreferences: {

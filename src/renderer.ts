@@ -115,6 +115,19 @@ function printCardsToScreen() {
                     }
                 }
             })
+
+            currElement.querySelector('#clearIcon')?.addEventListener("click", (event) => {
+                const button = event.target as HTMLSpanElement;
+
+                if (button) {
+                    const index = Number(button.dataset.index);
+                    cards.splice(index, 1);
+
+                    printCardsToScreen();
+
+                    writeJsonFile('cards.json', cards);
+                }
+            })
         }
     }
 
