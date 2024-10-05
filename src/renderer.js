@@ -36,6 +36,16 @@ function writeJsonFile(fileName, data) {
         }
     });
 }
+function writeAimeFile(fileName, cardId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            window.electronAPI.writeAimeFile(fileName, cardId);
+        }
+        catch (error) {
+            console.error("Error writing aime file", error);
+        }
+    });
+}
 function confirmCardForm(totalInput, inputName) {
     let newData = { id: totalInput, name: inputName };
     cards.push(newData);
@@ -58,7 +68,6 @@ function printCardsToScreen() {
                     <span data-index="${i}" id="checkIcon" class="material-icons cardIcon">check</span>
                     <span data-index="${i}" id="clearIcon" class="material-icons cardIcon">clear</span>             
                 </div>
-
             </div>
         `;
         if (listDiv)
@@ -78,6 +87,7 @@ function printCardsToScreen() {
                             <h3 class="playerName">${cards[mainCardIndex].name}</h3>
                             <h3 class="cardId">${cards[mainCardIndex].id}</h3>
                         `;
+                        writeAimeFile('aime.txt', cards[mainCardIndex].id);
                     }
                 }
             });

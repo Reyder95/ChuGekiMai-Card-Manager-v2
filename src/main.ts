@@ -74,6 +74,23 @@ app.on('activate', () => {
     
 })
 
+ipcMain.handle('write-aime-file', (event: IpcMainInvokeEvent, fileName: string, cardId: string) => {
+    let exeDirectory;
+
+    if (app.isPackaged)
+        exeDirectory = path.join(app.getAppPath(), '../../..')
+    else
+        exeDirectory = app.getAppPath();
+
+    const filePath = path.join(exeDirectory, fileName);
+
+    try {
+        fs.writeFileSync(filePath, cardId, 'utf-8');
+    } catch (error: any) {
+        return { error: error.message }
+    }
+})
+
 // TODO: Fix error "any"
 ipcMain.handle('read-json-file', (event: IpcMainInvokeEvent, fileName: string) : CardData | any => {
     let exeDirectory;
@@ -82,7 +99,7 @@ ipcMain.handle('read-json-file', (event: IpcMainInvokeEvent, fileName: string) :
         exeDirectory = path.join(app.getAppPath(), '../..');
     else
         exeDirectory = app.getAppPath();
-    
+
     const filePath = path.join(exeDirectory, fileName);
 
     try {

@@ -5,5 +5,6 @@ const electron_1 = require("electron");
 electron_1.contextBridge.exposeInMainWorld('electronAPI', {
     getAppPath: () => electron_1.ipcRenderer.invoke('get-app-path'),
     readJsonFile: (fileName) => electron_1.ipcRenderer.invoke('read-json-file', fileName),
-    writeJsonFile: (fileName, data) => electron_1.ipcRenderer.invoke('write-json-file', fileName, data)
+    writeJsonFile: (fileName, data) => electron_1.ipcRenderer.invoke('write-json-file', fileName, data),
+    writeAimeFile: (fileName, cardId) => electron_1.ipcRenderer.invoke('write-aime-file', fileName, cardId)
 });

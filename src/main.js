@@ -81,6 +81,20 @@ electron_1.app.on('window-all-closed', (event) => {
 electron_1.app.on('activate', () => {
     createWindow();
 });
+electron_1.ipcMain.handle('write-aime-file', (event, fileName, cardId) => {
+    let exeDirectory;
+    if (electron_1.app.isPackaged)
+        exeDirectory = path.join(electron_1.app.getAppPath(), '../../..');
+    else
+        exeDirectory = electron_1.app.getAppPath();
+    const filePath = path.join(exeDirectory, fileName);
+    try {
+        fs.writeFileSync(filePath, cardId, 'utf-8');
+    }
+    catch (error) {
+        return { error: error.message };
+    }
+});
 // TODO: Fix error "any"
 electron_1.ipcMain.handle('read-json-file', (event, fileName) => {
     let exeDirectory;

@@ -30,6 +30,14 @@ async function writeJsonFile(fileName: string, data: CardData[]): Promise<void> 
     }
 }
 
+async function writeAimeFile(fileName: string, cardId: string): Promise<void> {
+    try {
+        window.electronAPI.writeAimeFile(fileName, cardId);
+    } catch (error: any) {
+        console.error("Error writing aime file", error);
+    }
+}
+
 function confirmCardForm(totalInput : string, inputName: string) {
     let newData : CardData = { id: totalInput, name: inputName }
     cards.push(newData);
@@ -56,7 +64,6 @@ function printCardsToScreen() {
                     <span data-index="${i}" id="checkIcon" class="material-icons cardIcon">check</span>
                     <span data-index="${i}" id="clearIcon" class="material-icons cardIcon">clear</span>             
                 </div>
-
             </div>
         `;
     
@@ -79,9 +86,9 @@ function printCardsToScreen() {
                             <h3 class="playerName">${cards[mainCardIndex].name}</h3>
                             <h3 class="cardId">${cards[mainCardIndex].id}</h3>
                         `
-                    }
-                    
 
+                        writeAimeFile('aime.txt', cards[mainCardIndex].id);
+                    }
                 }
             })
         }
