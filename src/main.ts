@@ -1,9 +1,10 @@
 import { app, BrowserWindow, Tray, Menu, globalShortcut, ipcMain, IpcMainInvokeEvent } from 'electron';
-import { CardData } from './interfaces'
+import { CardData, Settings } from './interfaces'
 import * as path from 'path';
 import * as fs from 'fs'
 
 let mainWindow: BrowserWindow | null;
+let settingsWindow: BrowserWindow | null;
 
 let tray : Tray | null = null;
 
@@ -12,6 +13,25 @@ const lock = app.requestSingleInstanceLock();
 if (!lock) {
     app.quit();
 } else {
+
+    const createSettingsWindow = () => {
+        settingsWindow = new BrowserWindow({
+            width: 400,
+            height: 300,
+            parent: mainWindow ?? undefined,
+            modal: true,
+            webPreferences: {
+                nodeIntegration: true,
+                contextIsolation: false
+            }
+        })
+
+        settingsWindow.loadFile('settings.html');
+
+        settingsWindow.on('closed', () => {
+            settingsWindow = null;
+        })
+    }
 
     const createWindow = () => {
         if (!tray) {
@@ -65,6 +85,8 @@ if (!lock) {
             createWindow();
 
         if (mainWindow?.isVisible()) {
+            settingsWindow?.close();
+            settingsWindow = null;
             mainWindow.hide();
         } else {
             mainWindow?.show();
@@ -75,7 +97,8 @@ if (!lock) {
 
         setTimeout(() => { createWindow() 
 
-        }, 10) });
+        }, 10) 
+    });
 
     app.on('window-all-closed', (event: any) => {
         event.preventDefault()
@@ -105,7 +128,7 @@ if (!lock) {
     })
 
     // TODO: Fix error "any"
-    ipcMain.handle('read-json-file', (event: IpcMainInvokeEvent, fileName: string) : CardData | any => {
+    ipcMain.handle('read-json-file', (event: IpcMainInvokeEvent, fileName: string) : CardData | any | Settings => {
         let exeDirectory;
 
         if (app.isPackaged)
@@ -132,9 +155,6 @@ if (!lock) {
             exeDirectory = app.getAppPath();
         const filePath = path.join(exeDirectory, fileName);
 
-        console.log(filePath);
-        console.log(app.isPackaged);
-
         try {
             fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
         } catch (error: any) {
@@ -144,5 +164,11 @@ if (!lock) {
 
     ipcMain.handle('get-app-path', () => {
         return app.getAppPath();
+    })
+
+    ipcMain.handle('open-settings-window', () => {
+        if (!settingsWindow) {
+            createSettingsWindow();
+        }
     })
 }

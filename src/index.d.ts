@@ -5,6 +5,7 @@ declare global {
             readJsonFile: (fileName: string) => Promise<any>;
             writeJsonFile: (fileName: string, data: any) => Promise<void>;
             writeAimeFile: (fileName: string, cardId: string) => Promise<void>;
+            openSettings: () => Promise<void>;
         };
     }
 }

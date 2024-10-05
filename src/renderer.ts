@@ -1,6 +1,15 @@
-import { CardData } from './interfaces'
+import { CardData, Settings } from './interfaces'
 
 let cards : CardData[] = [];
+let settings: Settings = {
+    hotkeyCards: {
+        F1: null,
+        F2: null,
+        F3: null,
+        F4: null,
+        F5: null
+    }
+};
 let mainCardIndex = -1;
 
 const idInputs = document.getElementsByClassName("idInput");
@@ -18,7 +27,27 @@ function isCardData(obj: any): obj is CardData[] {
 
 function isCardDataArray(arr: any): arr is CardData[] {
     return Array.isArray(arr) && arr.every(isCardData);
-  }
+}
+
+async function readSettingsFile(fileName: string): Promise<any> {
+    const result = await window.electronAPI.readJsonFile(fileName);
+
+    if (result.error) {
+        console.error("Error reading from a JSON file: ", result.error);
+        writeSettingsFile('settings.json', settings);
+        return null;
+    }
+
+    settings = result;
+}
+
+async function writeSettingsFile(fileName: string, settings: Settings): Promise<void> {
+    try {
+        window.electronAPI.writeJsonFile(fileName, settings).then(() => console.log("Data written successfully!"))
+    } catch (error: any) {
+        console.error("Error writing data", error);
+    }
+}
 
 async function readJsonFile(fileName: string): Promise<any> {
     const result = await window.electronAPI.readJsonFile(fileName);
@@ -209,8 +238,17 @@ document.getElementById('generateCardButton')?.addEventListener('click', () => {
     }
 })
 
+document.getElementById('open-settings')?.addEventListener('click', () => {
+    window.electronAPI.openSettings();
+})
+
 readJsonFile('cards.json')
 .then((data: CardData[]) => {
     printCardsToScreen();
+})
+
+readSettingsFile('settings.json')
+.then((data: Settings) => {
+    settings = data;
 })
 

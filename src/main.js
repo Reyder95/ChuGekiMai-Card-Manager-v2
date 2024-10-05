@@ -27,12 +27,29 @@ const electron_1 = require("electron");
 const path = __importStar(require("path"));
 const fs = __importStar(require("fs"));
 let mainWindow;
+let settingsWindow;
 let tray = null;
 const lock = electron_1.app.requestSingleInstanceLock();
 if (!lock) {
     electron_1.app.quit();
 }
 else {
+    const createSettingsWindow = () => {
+        settingsWindow = new electron_1.BrowserWindow({
+            width: 400,
+            height: 300,
+            parent: mainWindow !== null && mainWindow !== void 0 ? mainWindow : undefined,
+            modal: true,
+            webPreferences: {
+                nodeIntegration: true,
+                contextIsolation: false
+            }
+        });
+        settingsWindow.loadFile('settings.html');
+        settingsWindow.on('closed', () => {
+            settingsWindow = null;
+        });
+    };
     const createWindow = () => {
         if (!tray) {
             tray = new electron_1.Tray(path.join(__dirname, "trayIcon.png"));
@@ -73,6 +90,8 @@ else {
         if (mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.isDestroyed())
             createWindow();
         if (mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.isVisible()) {
+            settingsWindow === null || settingsWindow === void 0 ? void 0 : settingsWindow.close();
+            settingsWindow = null;
             mainWindow.hide();
         }
         else {
@@ -128,8 +147,6 @@ else {
         else
             exeDirectory = electron_1.app.getAppPath();
         const filePath = path.join(exeDirectory, fileName);
-        console.log(filePath);
-        console.log(electron_1.app.isPackaged);
         try {
             fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
         }
@@ -139,5 +156,10 @@ else {
     });
     electron_1.ipcMain.handle('get-app-path', () => {
         return electron_1.app.getAppPath();
+    });
+    electron_1.ipcMain.handle('open-settings-window', () => {
+        if (!settingsWindow) {
+            createSettingsWindow();
+        }
     });
 }

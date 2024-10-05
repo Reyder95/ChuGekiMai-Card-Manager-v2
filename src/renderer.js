@@ -8,9 +8,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var _a, _b;
+var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", { value: true });
 let cards = [];
+let settings = {
+    hotkeyCards: {
+        F1: null,
+        F2: null,
+        F3: null,
+        F4: null,
+        F5: null
+    }
+};
 let mainCardIndex = -1;
 const idInputs = document.getElementsByClassName("idInput");
 const firstInput = idInputs[0];
@@ -22,6 +31,27 @@ function isCardData(obj) {
 }
 function isCardDataArray(arr) {
     return Array.isArray(arr) && arr.every(isCardData);
+}
+function readSettingsFile(fileName) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const result = yield window.electronAPI.readJsonFile(fileName);
+        if (result.error) {
+            console.error("Error reading from a JSON file: ", result.error);
+            writeSettingsFile('settings.json', settings);
+            return null;
+        }
+        settings = result;
+    });
+}
+function writeSettingsFile(fileName, settings) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            window.electronAPI.writeJsonFile(fileName, settings).then(() => console.log("Data written successfully!"));
+        }
+        catch (error) {
+            console.error("Error writing data", error);
+        }
+    });
 }
 function readJsonFile(fileName) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -174,7 +204,14 @@ for (let i = 0; i < idInputs.length; i++) {
         currInput.value = rand4;
     }
 });
+(_c = document.getElementById('open-settings')) === null || _c === void 0 ? void 0 : _c.addEventListener('click', () => {
+    window.electronAPI.openSettings();
+});
 readJsonFile('cards.json')
     .then((data) => {
     printCardsToScreen();
+});
+readSettingsFile('settings.json')
+    .then((data) => {
+    settings = data;
 });
