@@ -1,12 +1,16 @@
 import { app, BrowserWindow, Tray, Menu, globalShortcut, ipcMain, IpcMainInvokeEvent } from 'electron';
 import { CardData, Settings } from './interfaces'
+import Store from 'electron-store';
 import * as path from 'path';
 import * as fs from 'fs'
+import { writeToAimeFile } from './exposed_functions';
 
 let mainWindow: BrowserWindow | null;
 let settingsWindow: BrowserWindow | null;
 
 let tray : Tray | null = null;
+
+const store = new Store();
 
 const lock = app.requestSingleInstanceLock();
 
@@ -26,7 +30,7 @@ if (!lock) {
             }
         })
 
-        settingsWindow.loadFile('settings.html');
+        settingsWindow.loadFile('./src/settings.html');
 
         settingsWindow.on('closed', () => {
             settingsWindow = null;
@@ -48,7 +52,6 @@ if (!lock) {
                 showOverlay(); // Trigger showOverlay on tray icon click
             });
         }
-
 
         mainWindow = new BrowserWindow({
             width: 400,
@@ -74,6 +77,16 @@ if (!lock) {
         globalShortcut.register('F7', () => {
             showOverlay();
         })
+
+        globalShortcut.register('F1', () => {
+            useHotkey('F1');
+
+            if (mainWindow?.isDestroyed())
+                console.log('destroy')
+            else {
+                mainWindow?.webContents.send('global-shortcut-pressed', 'F1');
+            }
+        })
     }
 
     const quitApp = () => {
@@ -88,6 +101,7 @@ if (!lock) {
             settingsWindow?.close();
             settingsWindow = null;
             mainWindow.hide();
+            console.log('test');
         } else {
             mainWindow?.show();
         }
@@ -110,22 +124,7 @@ if (!lock) {
 
     })
 
-    ipcMain.handle('write-aime-file', (event: IpcMainInvokeEvent, fileName: string, cardId: string) => {
-        let exeDirectory;
-
-        if (app.isPackaged)
-            exeDirectory = path.join(app.getAppPath(), '../../..')
-        else
-            exeDirectory = app.getAppPath();
-
-        const filePath = path.join(exeDirectory, fileName);
-
-        try {
-            fs.writeFileSync(filePath, cardId, 'utf-8');
-        } catch (error: any) {
-            return { error: error.message }
-        }
-    })
+    ipcMain.handle('write-aime-file', (event: IpcMainInvokeEvent, fileName: string, cardId: string) => writeToAimeFile(event, fileName, cardId, app))
 
     // TODO: Fix error "any"
     ipcMain.handle('read-json-file', (event: IpcMainInvokeEvent, fileName: string) : CardData | any | Settings => {
@@ -171,4 +170,22 @@ if (!lock) {
             createSettingsWindow();
         }
     })
+
+    ipcMain.handle('store-get', (event, key) => {
+        return store.get(key);
+    });
+
+    ipcMain.handle('store-set', (event, key, value) => {
+        store.set(key, value);
+    })
+
+    const useHotkey = (key: string) => {
+        let card = store.get(key);
+
+        console.log(card);
+
+        if (card) {
+            store.set('curr-card', card);
+        }
+    }
 }

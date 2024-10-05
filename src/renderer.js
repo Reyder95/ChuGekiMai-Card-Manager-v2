@@ -23,6 +23,9 @@ let settings = {
 let mainCardIndex = -1;
 const idInputs = document.getElementsByClassName("idInput");
 const firstInput = idInputs[0];
+window.electronAPI.onGlobalShortcut((event, key) => {
+    displayTopCard();
+});
 function isCardData(obj) {
     return (typeof obj === 'object' &&
         obj !== null &&
@@ -93,6 +96,26 @@ function confirmCardForm(totalInput, inputName) {
     printCardsToScreen();
     writeJsonFile('cards.json', cards);
 }
+function displayTopCard() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const mainCard = yield window.electronAPI.storeGet('curr-card');
+        if (mainCard) {
+            const topCard = document.getElementById("topCard");
+            if (topCard) {
+                let currId = mainCard.id;
+                for (let i = 0; i < currId.length; i++) {
+                    if (i % 5 == 0 && i != 0) {
+                        currId = currId.slice(0, i - 1) + " " + currId.slice(i - 1, currId.length);
+                    }
+                }
+                topCard.innerHTML = `
+                <h3 class="playerName">${mainCard.name}</h3>
+                <h3 class="cardId">${currId}</h3>
+            `;
+            }
+        }
+    });
+}
 function getRandomArbitrary(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
 }
@@ -118,26 +141,19 @@ function printCardsToScreen() {
     if (cardListElements) {
         for (let i = 0; i < cardListElements.length; i++) {
             const currElement = cardListElements[i];
-            (_a = currElement.querySelector('#checkIcon')) === null || _a === void 0 ? void 0 : _a.addEventListener("click", (event) => {
+            (_a = currElement.querySelector('#checkIcon')) === null || _a === void 0 ? void 0 : _a.addEventListener("click", (event) => __awaiter(this, void 0, void 0, function* () {
                 const button = event.target;
                 if (button) {
-                    mainCardIndex = Number(button.dataset.index);
+                    let mainCard = cards[Number(button.dataset.index)];
+                    yield window.electronAPI.storeSet('curr-card', mainCard);
+                    //mainCardIndex = Number(button.dataset.index);
                     const topCard = document.getElementById("topCard");
                     if (topCard) {
-                        let currId = cards[mainCardIndex].id;
-                        for (let i = 0; i < currId.length; i++) {
-                            if (i % 5 == 0 && i != 0) {
-                                currId = currId.slice(0, i - 1) + " " + currId.slice(i - 1, currId.length);
-                            }
-                        }
-                        topCard.innerHTML = `
-                            <h3 class="playerName">${cards[mainCardIndex].name}</h3>
-                            <h3 class="cardId">${currId}</h3>
-                        `;
-                        writeAimeFile('aime.txt', cards[mainCardIndex].id);
+                        displayTopCard();
+                        writeAimeFile('aime.txt', mainCard.id);
                     }
                 }
-            });
+            }));
             (_b = currElement.querySelector('#clearIcon')) === null || _b === void 0 ? void 0 : _b.addEventListener("click", (event) => {
                 const button = event.target;
                 if (button) {
@@ -215,3 +231,4 @@ readSettingsFile('settings.json')
     .then((data) => {
     settings = data;
 });
+displayTopCard();

@@ -1,6 +1,9 @@
 {
   "hotkeyCards": {
-    "F1": null,
+    "F1": {
+      "name": "Cancer",
+      "id": "45398276426838779252"
+    },
     "F2": null,
     "F3": null,
     "F4": null,

@@ -6,6 +6,9 @@ declare global {
             writeJsonFile: (fileName: string, data: any) => Promise<void>;
             writeAimeFile: (fileName: string, cardId: string) => Promise<void>;
             openSettings: () => Promise<void>;
+            onGlobalShortcut: (callback: (event: any, key: string) => void) => void;
+            storeGet: (key: any) => Promise<any>;
+            storeSet: (key: any, value: any) => Promise<void>;
         };
     }
 }

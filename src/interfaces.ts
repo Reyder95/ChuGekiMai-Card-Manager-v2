@@ -5,10 +5,10 @@ export interface CardData {
 
 export interface Settings {
     hotkeyCards: {
-        F1: Number | null,
-        F2: Number | null,
-        F3: Number | null,
-        F4: Number | null,
-        F5: Number | null;
+        F1: CardData | null,
+        F2: CardData | null,
+        F3: CardData | null,
+        F4: CardData | null,
+        F5: CardData | null;
     }
 }

@@ -16,6 +16,10 @@ const idInputs = document.getElementsByClassName("idInput");
 
 const firstInput = idInputs[0] as HTMLInputElement;
 
+window.electronAPI.onGlobalShortcut((event, key) => {
+    displayTopCard();
+})
+
 function isCardData(obj: any): obj is CardData[] {
     return (
         typeof obj === 'object' &&
@@ -92,6 +96,29 @@ function confirmCardForm(totalInput : string, inputName: string) {
     writeJsonFile('cards.json', cards);
 }
 
+async function displayTopCard() {
+    const mainCard = await window.electronAPI.storeGet('curr-card');
+
+    if (mainCard) {
+        const topCard = document.getElementById("topCard");
+        if (topCard) {
+            let currId = mainCard.id;
+    
+            for (let i = 0; i < currId.length; i++) {
+                if (i % 5 == 0 && i != 0) {
+                    currId = currId.slice(0, i-1) + " " + currId.slice(i-1, currId.length)
+    
+                }
+            }
+            topCard.innerHTML = `
+                <h3 class="playerName">${mainCard.name}</h3>
+                <h3 class="cardId">${currId}</h3>
+            `
+        }
+    }
+
+}
+
 function getRandomArbitrary(min: number, max: number) {
     return Math.floor(Math.random() * (max - min) + min);
 }
@@ -121,26 +148,17 @@ function printCardsToScreen() {
     if (cardListElements) {
         for (let i = 0; i < cardListElements.length; i++) {
             const currElement = cardListElements[i] as HTMLDivElement;
-            currElement.querySelector('#checkIcon')?.addEventListener("click", (event) => {
+            currElement.querySelector('#checkIcon')?.addEventListener("click", async (event) => {
                 const button = event.target as HTMLSpanElement;
                 if (button) {
-                    mainCardIndex = Number(button.dataset.index);
+                    let mainCard = cards[Number(button.dataset.index)];
+                    await window.electronAPI.storeSet('curr-card', mainCard);
+                    //mainCardIndex = Number(button.dataset.index);
                     const topCard = document.getElementById("topCard");
                     if (topCard) {
-                        let currId = cards[mainCardIndex].id;
+                        displayTopCard()
 
-                        for (let i = 0; i < currId.length; i++) {
-                            if (i % 5 == 0 && i != 0) {
-                                currId = currId.slice(0, i-1) + " " + currId.slice(i-1, currId.length)
-
-                            }
-                        }
-                        topCard.innerHTML = `
-                            <h3 class="playerName">${cards[mainCardIndex].name}</h3>
-                            <h3 class="cardId">${currId}</h3>
-                        `
-
-                        writeAimeFile('aime.txt', cards[mainCardIndex].id);
+                        writeAimeFile('aime.txt', mainCard.id);
                     }
                 }
             })
@@ -252,3 +270,4 @@ readSettingsFile('settings.json')
     settings = data;
 })
 
+displayTopCard();
