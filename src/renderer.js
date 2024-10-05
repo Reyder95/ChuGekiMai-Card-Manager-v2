@@ -14,10 +14,21 @@ let cards = [];
 let mainCardIndex = -1;
 const idInputs = document.getElementsByClassName("idInput");
 const firstInput = idInputs[0];
+function isCardData(obj) {
+    return (typeof obj === 'object' &&
+        obj !== null &&
+        typeof obj.id === 'string' &&
+        typeof obj.name === 'string');
+}
+function isCardDataArray(arr) {
+    return Array.isArray(arr) && arr.every(isCardData);
+}
 function readJsonFile(fileName) {
     return __awaiter(this, void 0, void 0, function* () {
         const result = yield window.electronAPI.readJsonFile(fileName);
-        cards = result;
+        if (isCardDataArray(result))
+            cards = result;
+        console.log(cards);
         if (result.error) {
             console.error("Error reading from a JSON file: ", result.error);
             return null;
@@ -49,7 +60,7 @@ function writeAimeFile(fileName, cardId) {
 function confirmCardForm(totalInput, inputName) {
     let newData = { id: totalInput, name: inputName };
     cards.push(newData);
-    printCardsToScreen(cards);
+    printCardsToScreen();
     writeJsonFile('cards.json', cards);
 }
 function getRandomArbitrary(min, max) {
@@ -83,9 +94,15 @@ function printCardsToScreen() {
                     mainCardIndex = Number(button.dataset.index);
                     const topCard = document.getElementById("topCard");
                     if (topCard) {
+                        let currId = cards[mainCardIndex].id;
+                        for (let i = 0; i < currId.length; i++) {
+                            if (i % 5 == 0 && i != 0) {
+                                currId = currId.slice(0, i - 1) + " " + currId.slice(i - 1, currId.length);
+                            }
+                        }
                         topCard.innerHTML = `
                             <h3 class="playerName">${cards[mainCardIndex].name}</h3>
-                            <h3 class="cardId">${cards[mainCardIndex].id}</h3>
+                            <h3 class="cardId">${currId}</h3>
                         `;
                         writeAimeFile('aime.txt', cards[mainCardIndex].id);
                     }

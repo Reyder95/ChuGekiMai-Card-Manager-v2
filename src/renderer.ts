@@ -7,10 +7,26 @@ const idInputs = document.getElementsByClassName("idInput");
 
 const firstInput = idInputs[0] as HTMLInputElement;
 
+function isCardData(obj: any): obj is CardData[] {
+    return (
+        typeof obj === 'object' &&
+        obj !== null &&
+        typeof obj.id === 'string' &&
+        typeof obj.name === 'string'
+    );
+}
+
+function isCardDataArray(arr: any): arr is CardData[] {
+    return Array.isArray(arr) && arr.every(isCardData);
+  }
+
 async function readJsonFile(fileName: string): Promise<any> {
     const result = await window.electronAPI.readJsonFile(fileName);
 
-    cards = result;
+    if (isCardDataArray(result))
+        cards = result;
+
+    console.log(cards)
 
     if (result.error) {
         console.error("Error reading from a JSON file: ", result.error);
@@ -42,7 +58,7 @@ function confirmCardForm(totalInput : string, inputName: string) {
     let newData : CardData = { id: totalInput, name: inputName }
     cards.push(newData);
 
-    printCardsToScreen(cards);
+    printCardsToScreen();
 
     writeJsonFile('cards.json', cards);
 }
@@ -82,9 +98,17 @@ function printCardsToScreen() {
                     mainCardIndex = Number(button.dataset.index);
                     const topCard = document.getElementById("topCard");
                     if (topCard) {
+                        let currId = cards[mainCardIndex].id;
+
+                        for (let i = 0; i < currId.length; i++) {
+                            if (i % 5 == 0 && i != 0) {
+                                currId = currId.slice(0, i-1) + " " + currId.slice(i-1, currId.length)
+
+                            }
+                        }
                         topCard.innerHTML = `
                             <h3 class="playerName">${cards[mainCardIndex].name}</h3>
-                            <h3 class="cardId">${cards[mainCardIndex].id}</h3>
+                            <h3 class="cardId">${currId}</h3>
                         `
 
                         writeAimeFile('aime.txt', cards[mainCardIndex].id);

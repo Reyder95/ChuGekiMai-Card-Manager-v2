@@ -55,5 +55,5 @@ patches/mtime-cache.json
 
 spec/fixtures/logo.png
 
-cards.json
+**/cards.json
 aime.txt
