@@ -26,7 +26,8 @@ if (!lock) {
             modal: true,
             webPreferences: {
                 nodeIntegration: true,
-                contextIsolation: false
+                preload: path.join(__dirname, 'preload.js'),
+                contextIsolation: true
             }
         })
 
@@ -87,6 +88,18 @@ if (!lock) {
                 mainWindow?.webContents.send('global-shortcut-pressed', 'F1');
             }
         })
+
+        if (!store.has('card-keys')) {
+            const keys = {
+                F1: null,
+                F2: null,
+                F3: null,
+                F4: null,
+                F5: null
+            }
+
+            store.set('card-keys', keys);
+        }
     }
 
     const quitApp = () => {

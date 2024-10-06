@@ -48,7 +48,8 @@ else {
             modal: true,
             webPreferences: {
                 nodeIntegration: true,
-                contextIsolation: false
+                preload: path.join(__dirname, 'preload.js'),
+                contextIsolation: true
             }
         });
         settingsWindow.loadFile('./src/settings.html');
@@ -96,6 +97,16 @@ else {
                 mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.webContents.send('global-shortcut-pressed', 'F1');
             }
         });
+        if (!store.has('card-keys')) {
+            const keys = {
+                F1: null,
+                F2: null,
+                F3: null,
+                F4: null,
+                F5: null
+            };
+            store.set('card-keys', keys);
+        }
     };
     const quitApp = () => {
         electron_1.app.quit(); // Quit the application

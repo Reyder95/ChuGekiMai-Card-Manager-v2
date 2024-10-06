@@ -1,6 +1,5 @@
 import { CardData, Settings } from './interfaces'
 
-let cards : CardData[] = [];
 let settings: Settings = {
     hotkeyCards: {
         F1: null,
@@ -56,10 +55,12 @@ async function writeSettingsFile(fileName: string, settings: Settings): Promise<
 async function readJsonFile(fileName: string): Promise<any> {
     const result = await window.electronAPI.readJsonFile(fileName);
 
-    if (isCardDataArray(result))
-        cards = result;
+    if (isCardDataArray(result)) {
+        //cards = result;
+        window.electronAPI.storeSet('card-list', result);
+    }
 
-    console.log(cards)
+    console.log(window.electronAPI.storeGet('card-list'))
 
     if (result.error) {
         console.error("Error reading from a JSON file: ", result.error);
@@ -87,13 +88,15 @@ async function writeAimeFile(fileName: string, cardId: string): Promise<void> {
     }
 }
 
-function confirmCardForm(totalInput : string, inputName: string) {
+async function confirmCardForm(totalInput : string, inputName: string) {
     let newData : CardData = { id: totalInput, name: inputName }
-    cards.push(newData);
+    let cardData = await window.electronAPI.storeGet('card-list');
+    cardData.push(newData);
+    await window.electronAPI.storeSet('card-list', cardData);
 
     printCardsToScreen();
 
-    writeJsonFile('cards.json', cards);
+    writeJsonFile('cards.json', cardData);
 }
 
 async function displayTopCard() {
@@ -123,10 +126,15 @@ function getRandomArbitrary(min: number, max: number) {
     return Math.floor(Math.random() * (max - min) + min);
 }
 
-function printCardsToScreen() {
+async function printCardsToScreen() {
+    const cards = await window.electronAPI.storeGet('card-list');
     const listDiv = document.getElementById('listDiv');
     if (listDiv)
         listDiv.innerHTML = '';
+
+    if (!cards)
+        return;
+
     for (let i = 0; i < cards.length; i++) {
         
         const htmlCode = `
@@ -163,7 +171,7 @@ function printCardsToScreen() {
                 }
             })
 
-            currElement.querySelector('#clearIcon')?.addEventListener("click", (event) => {
+            currElement.querySelector('#clearIcon')?.addEventListener("click", async (event) => {
                 const button = event.target as HTMLSpanElement;
 
                 if (button) {
@@ -172,6 +180,8 @@ function printCardsToScreen() {
 
                     if (userConfirmed) {
                         cards.splice(index, 1);
+
+                        await window.electronAPI.storeSet('card-list', cards)
 
                         printCardsToScreen();
     
@@ -261,7 +271,8 @@ document.getElementById('open-settings')?.addEventListener('click', () => {
 })
 
 readJsonFile('cards.json')
-.then((data: CardData[]) => {
+.then(async (data: CardData[]) => {
+    await window.electronAPI.storeSet('card-list', data);
     printCardsToScreen();
 })
 

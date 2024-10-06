@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", { value: true });
-let cards = [];
 let settings = {
     hotkeyCards: {
         F1: null,
@@ -59,9 +58,11 @@ function writeSettingsFile(fileName, settings) {
 function readJsonFile(fileName) {
     return __awaiter(this, void 0, void 0, function* () {
         const result = yield window.electronAPI.readJsonFile(fileName);
-        if (isCardDataArray(result))
-            cards = result;
-        console.log(cards);
+        if (isCardDataArray(result)) {
+            //cards = result;
+            window.electronAPI.storeSet('card-list', result);
+        }
+        console.log(window.electronAPI.storeGet('card-list'));
         if (result.error) {
             console.error("Error reading from a JSON file: ", result.error);
             return null;
@@ -91,10 +92,14 @@ function writeAimeFile(fileName, cardId) {
     });
 }
 function confirmCardForm(totalInput, inputName) {
-    let newData = { id: totalInput, name: inputName };
-    cards.push(newData);
-    printCardsToScreen();
-    writeJsonFile('cards.json', cards);
+    return __awaiter(this, void 0, void 0, function* () {
+        let newData = { id: totalInput, name: inputName };
+        let cardData = yield window.electronAPI.storeGet('card-list');
+        cardData.push(newData);
+        yield window.electronAPI.storeSet('card-list', cardData);
+        printCardsToScreen();
+        writeJsonFile('cards.json', cardData);
+    });
 }
 function displayTopCard() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -120,12 +125,16 @@ function getRandomArbitrary(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
 }
 function printCardsToScreen() {
-    var _a, _b;
-    const listDiv = document.getElementById('listDiv');
-    if (listDiv)
-        listDiv.innerHTML = '';
-    for (let i = 0; i < cards.length; i++) {
-        const htmlCode = `
+    return __awaiter(this, void 0, void 0, function* () {
+        var _a, _b;
+        const cards = yield window.electronAPI.storeGet('card-list');
+        const listDiv = document.getElementById('listDiv');
+        if (listDiv)
+            listDiv.innerHTML = '';
+        if (!cards)
+            return;
+        for (let i = 0; i < cards.length; i++) {
+            const htmlCode = `
             <div class="listElement">
                 <p>${cards[i].name}</p>
                 <div class="cardButtons">
@@ -134,40 +143,42 @@ function printCardsToScreen() {
                 </div>
             </div>
         `;
-        if (listDiv)
-            listDiv.innerHTML += htmlCode;
-    }
-    const cardListElements = listDiv === null || listDiv === void 0 ? void 0 : listDiv.getElementsByClassName("cardButtons");
-    if (cardListElements) {
-        for (let i = 0; i < cardListElements.length; i++) {
-            const currElement = cardListElements[i];
-            (_a = currElement.querySelector('#checkIcon')) === null || _a === void 0 ? void 0 : _a.addEventListener("click", (event) => __awaiter(this, void 0, void 0, function* () {
-                const button = event.target;
-                if (button) {
-                    let mainCard = cards[Number(button.dataset.index)];
-                    yield window.electronAPI.storeSet('curr-card', mainCard);
-                    //mainCardIndex = Number(button.dataset.index);
-                    const topCard = document.getElementById("topCard");
-                    if (topCard) {
-                        displayTopCard();
-                        writeAimeFile('aime.txt', mainCard.id);
-                    }
-                }
-            }));
-            (_b = currElement.querySelector('#clearIcon')) === null || _b === void 0 ? void 0 : _b.addEventListener("click", (event) => {
-                const button = event.target;
-                if (button) {
-                    const index = Number(button.dataset.index);
-                    const userConfirmed = confirm(`Are you sure you want to delete ${cards[index].name}'s profile?`);
-                    if (userConfirmed) {
-                        cards.splice(index, 1);
-                        printCardsToScreen();
-                        writeJsonFile('cards.json', cards);
-                    }
-                }
-            });
+            if (listDiv)
+                listDiv.innerHTML += htmlCode;
         }
-    }
+        const cardListElements = listDiv === null || listDiv === void 0 ? void 0 : listDiv.getElementsByClassName("cardButtons");
+        if (cardListElements) {
+            for (let i = 0; i < cardListElements.length; i++) {
+                const currElement = cardListElements[i];
+                (_a = currElement.querySelector('#checkIcon')) === null || _a === void 0 ? void 0 : _a.addEventListener("click", (event) => __awaiter(this, void 0, void 0, function* () {
+                    const button = event.target;
+                    if (button) {
+                        let mainCard = cards[Number(button.dataset.index)];
+                        yield window.electronAPI.storeSet('curr-card', mainCard);
+                        //mainCardIndex = Number(button.dataset.index);
+                        const topCard = document.getElementById("topCard");
+                        if (topCard) {
+                            displayTopCard();
+                            writeAimeFile('aime.txt', mainCard.id);
+                        }
+                    }
+                }));
+                (_b = currElement.querySelector('#clearIcon')) === null || _b === void 0 ? void 0 : _b.addEventListener("click", (event) => __awaiter(this, void 0, void 0, function* () {
+                    const button = event.target;
+                    if (button) {
+                        const index = Number(button.dataset.index);
+                        const userConfirmed = confirm(`Are you sure you want to delete ${cards[index].name}'s profile?`);
+                        if (userConfirmed) {
+                            cards.splice(index, 1);
+                            yield window.electronAPI.storeSet('card-list', cards);
+                            printCardsToScreen();
+                            writeJsonFile('cards.json', cards);
+                        }
+                    }
+                }));
+            }
+        }
+    });
 }
 firstInput.addEventListener('paste', (event) => {
     event.preventDefault();
@@ -224,9 +235,10 @@ for (let i = 0; i < idInputs.length; i++) {
     window.electronAPI.openSettings();
 });
 readJsonFile('cards.json')
-    .then((data) => {
+    .then((data) => __awaiter(void 0, void 0, void 0, function* () {
+    yield window.electronAPI.storeSet('card-list', data);
     printCardsToScreen();
-});
+}));
 readSettingsFile('settings.json')
     .then((data) => {
     settings = data;
