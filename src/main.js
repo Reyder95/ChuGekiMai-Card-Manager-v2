@@ -107,6 +107,8 @@ else {
             };
             store.set('card-keys', keys);
         }
+        if (!store.has('settings-card-list'))
+            store.set('settings-card-list', []);
     };
     const quitApp = () => {
         electron_1.app.quit(); // Quit the application

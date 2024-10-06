@@ -1,4 +1,7 @@
-let currSelectedCard = null;
+import { CardData } from "./interfaces";
+
+
+let currSelectedCard : CardData | null = null;
 
 async function populateDropdown() {
     const cards = await window.electronAPI.storeGet('card-list');
@@ -22,17 +25,54 @@ async function populateDropdown() {
             let selectedOption = target.value;
 
             let currCards = await window.electronAPI.storeGet('card-list');
+            
 
-            if (currCards)
-                console.log(currCards[selectedOption].name);
+            if (currCards) {
+                currSelectedCard = currCards[selectedOption];
+
+            }
         })
 
         cardSelectBox.innerHTML = htmlFill;
     }
 }
 
-document.getElementById('add-card')?.addEventListener('click', () => {
+async function printSettingsCards() {
+    let settingsCards = await window.electronAPI.storeGet('settings-card-list');
 
+    let settingsCardsDiv = document.getElementById('settings-cards');
+
+    if (settingsCardsDiv && settingsCards) {
+        let htmlFill = '';
+
+        for (let i = 0; i < settingsCards.length; i++) {
+            let settingsCardKey = settingsCards[i].key ? settingsCards[i].key : '---'
+
+            htmlFill += `
+                <div class="hotkey-element">
+                    <div>${settingsCards[i].name}</div>
+                    <div>${settingsCardKey}</div>
+                </div>
+            `
+        }
+
+        settingsCardsDiv.innerHTML = htmlFill;
+    }
+}
+
+document.getElementById('add-card')?.addEventListener('click', async () => {
+    let settingsCards = await window.electronAPI.storeGet('settings-card-list');
+
+    if (currSelectedCard && settingsCards) {
+        let newSettingsCard = {...currSelectedCard, key: null};
+        settingsCards.push(newSettingsCard);
+
+        await window.electronAPI.storeSet('settings-card-list', settingsCards)
+
+        printSettingsCards();
+    }
 })
 
 populateDropdown();
+
+printSettingsCards();

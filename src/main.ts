@@ -100,6 +100,9 @@ if (!lock) {
 
             store.set('card-keys', keys);
         }
+
+        if (!store.has('settings-card-list'))
+            store.set('settings-card-list', []);
     }
 
     const quitApp = () => {

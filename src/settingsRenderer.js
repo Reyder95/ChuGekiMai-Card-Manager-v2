@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var _a;
+Object.defineProperty(exports, "__esModule", { value: true });
 let currSelectedCard = null;
 function populateDropdown() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -27,13 +28,41 @@ function populateDropdown() {
                 let target = event.target;
                 let selectedOption = target.value;
                 let currCards = yield window.electronAPI.storeGet('card-list');
-                if (currCards)
-                    console.log(currCards[selectedOption].name);
+                if (currCards) {
+                    currSelectedCard = currCards[selectedOption];
+                }
             }));
             cardSelectBox.innerHTML = htmlFill;
         }
     });
 }
-(_a = document.getElementById('add-card')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
-});
+function printSettingsCards() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let settingsCards = yield window.electronAPI.storeGet('settings-card-list');
+        let settingsCardsDiv = document.getElementById('settings-cards');
+        if (settingsCardsDiv && settingsCards) {
+            let htmlFill = '';
+            for (let i = 0; i < settingsCards.length; i++) {
+                let settingsCardKey = settingsCards[i].key ? settingsCards[i].key : '---';
+                htmlFill += `
+                <div class="hotkey-element">
+                    <div>${settingsCards[i].name}</div>
+                    <div>${settingsCardKey}</div>
+                </div>
+            `;
+            }
+            settingsCardsDiv.innerHTML = htmlFill;
+        }
+    });
+}
+(_a = document.getElementById('add-card')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => __awaiter(void 0, void 0, void 0, function* () {
+    let settingsCards = yield window.electronAPI.storeGet('settings-card-list');
+    if (currSelectedCard && settingsCards) {
+        let newSettingsCard = Object.assign(Object.assign({}, currSelectedCard), { key: null });
+        settingsCards.push(newSettingsCard);
+        yield window.electronAPI.storeSet('settings-card-list', settingsCards);
+        printSettingsCards();
+    }
+}));
 populateDropdown();
+printSettingsCards();

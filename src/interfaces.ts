@@ -1,6 +1,7 @@
 export interface CardData {
     id: string,
-    name: string
+    name: string,
+    key?: string
 }
 
 export interface Settings {
