@@ -22,6 +22,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -89,14 +98,12 @@ else {
         electron_1.globalShortcut.register('F7', () => {
             showOverlay();
         });
-        electron_1.globalShortcut.register('F1', () => {
-            useHotkey('F1');
-            if (mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.isDestroyed())
-                console.log('destroy');
-            else {
-                mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.webContents.send('global-shortcut-pressed', 'F1');
-            }
-        });
+        electron_1.globalShortcut.register('F1', () => handleSetHotkey('F1'));
+        electron_1.globalShortcut.register('F2', () => handleSetHotkey('F2'));
+        electron_1.globalShortcut.register('F3', () => handleSetHotkey('F3'));
+        electron_1.globalShortcut.register('F4', () => handleSetHotkey('F4'));
+        electron_1.globalShortcut.register('F5', () => handleSetHotkey('F5'));
+        store.delete('card-keys');
         if (!store.has('card-keys')) {
             const keys = {
                 F1: null,
@@ -109,6 +116,7 @@ else {
         }
         if (!store.has('settings-card-list'))
             store.set('settings-card-list', []);
+        store.delete('selected-settings-card');
     };
     const quitApp = () => {
         electron_1.app.quit(); // Quit the application
@@ -183,6 +191,9 @@ else {
     electron_1.ipcMain.handle('store-set', (event, key, value) => {
         store.set(key, value);
     });
+    electron_1.ipcMain.handle('store-delete', (event, key) => {
+        return store.delete(key);
+    });
     const useHotkey = (key) => {
         let card = store.get(key);
         console.log(card);
@@ -190,4 +201,48 @@ else {
             store.set('curr-card', card);
         }
     };
+    const handleSetHotkey = (key) => __awaiter(void 0, void 0, void 0, function* () {
+        let selectedCardIndex = yield store.get('selected-settings-card');
+        let settingsCards = yield store.get('settings-card-list');
+        let cardKeys = yield store.get('card-keys');
+        if (selectedCardIndex) {
+            if (mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.isDestroyed()) {
+                console.log('destroy');
+            }
+            else {
+                // If the key already has a card assigned
+                if (cardKeys[key] != null) {
+                    let originalCardIndex = cardKeys[key]; // The index of the card currently assigned to the function key
+                    let newCardIndex = selectedCardIndex; // The index of the card being selected
+                    // Log the current cards for debugging
+                    console.log("Original Card:", settingsCards[originalCardIndex]);
+                    console.log("New Card:", settingsCards[newCardIndex]);
+                }
+                else {
+                    // If the key is not currently assigned, assign it
+                    if (settingsCards[selectedCardIndex].key != null) {
+                        let oldKey = settingsCards[selectedCardIndex].key; // Get the old key if it exists
+                        cardKeys[oldKey] = null; // Clear the old key from cardKeys
+                    }
+                    // Assign the new key to the card
+                    cardKeys[key] = selectedCardIndex;
+                    settingsCards[selectedCardIndex].key = key;
+                }
+                store.set('card-keys', cardKeys);
+                store.set('settings-card-list', settingsCards);
+                store.delete('selected-settings-card');
+                console.log(cardKeys);
+                console.log(settingsCards);
+                settingsWindow === null || settingsWindow === void 0 ? void 0 : settingsWindow.webContents.send('set-card', key);
+            }
+        }
+        else {
+            useHotkey(key);
+            if (mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.isDestroyed())
+                console.log('destroy');
+            else {
+                mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.webContents.send('global-shortcut-pressed', key);
+            }
+        }
+    });
 }

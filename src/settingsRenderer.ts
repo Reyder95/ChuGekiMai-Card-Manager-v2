@@ -39,6 +39,7 @@ async function populateDropdown() {
 
 async function printSettingsCards() {
     let settingsCards = await window.electronAPI.storeGet('settings-card-list');
+    let selectedCardIndex = await window.electronAPI.storeGet('selected-settings-card');
 
     let settingsCardsDiv = document.getElementById('settings-cards');
 
@@ -48,17 +49,37 @@ async function printSettingsCards() {
         for (let i = 0; i < settingsCards.length; i++) {
             let settingsCardKey = settingsCards[i].key ? settingsCards[i].key : '---'
 
+            let classes = 'hotkey-element';
+            
+            if (selectedCardIndex && settingsCards[selectedCardIndex].id == settingsCards[i].id)
+                classes += ' hotkey-selected'
+            
+
             htmlFill += `
-                <div class="hotkey-element">
+                <div data-index=${i} class="${classes}">
                     <div>${settingsCards[i].name}</div>
                     <div>${settingsCardKey}</div>
                 </div>
             `
         }
 
-        settingsCardsDiv.innerHTML = htmlFill;
+        if (settingsCardsDiv) {
+            settingsCardsDiv.innerHTML = htmlFill;
+        }
     }
 }
+
+window.electronAPI.setCard(async (event, key) => {
+
+        //settingsCards[settingsCardIndex].key = key;
+
+        //await window.electronAPI.storeSet('settings-card-list', settingsCards);
+
+        //await window.electronAPI.storeDelete('selected-settings-card');
+
+        await printSettingsCards();
+
+})
 
 document.getElementById('add-card')?.addEventListener('click', async () => {
     let settingsCards = await window.electronAPI.storeGet('settings-card-list');
@@ -72,6 +93,32 @@ document.getElementById('add-card')?.addEventListener('click', async () => {
         printSettingsCards();
     }
 })
+
+// Event listener for selecting/deselecting a card
+document.getElementById('settings-cards')?.addEventListener('click', async (event) => {
+    let target = event.target as HTMLElement;
+    let hotkeyElement = target.closest('.hotkey-element');
+
+    if (hotkeyElement) {
+        let index = hotkeyElement.getAttribute('data-index');
+        let selectedCard = await window.electronAPI.storeGet('selected-settings-card');
+        let settingsCards = await window.electronAPI.storeGet('settings-card-list')
+
+        if (selectedCard && index) {
+            if (settingsCards[index].id == selectedCard.id) {
+                await window.electronAPI.storeDelete('selected-settings-card');
+            } else {
+                await window.electronAPI.storeSet('selected-settings-card', index);
+            }
+        } else {
+            if (index)
+                await window.electronAPI.storeSet('selected-settings-card', index);
+        }
+
+        // Update the UI
+        await printSettingsCards();  // This ensures the UI updates after changing the selected card
+    }
+});
 
 populateDropdown();
 

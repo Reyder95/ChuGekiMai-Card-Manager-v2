@@ -9,6 +9,8 @@ declare global {
             onGlobalShortcut: (callback: (event: any, key: string) => void) => void;
             storeGet: (key: any) => Promise<any>;
             storeSet: (key: any, value: any) => Promise<void>;
+            storeDelete: (key: any) => Promise<void>;
+            setCard: (callback: (event: any, key: string) => void) => void;
         };
     }
 }

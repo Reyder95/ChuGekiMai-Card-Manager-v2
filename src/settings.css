@@ -11,3 +11,7 @@
     background-color: grey;
     cursor: pointer;
 }
+
+.hotkey-selected {
+    border: 5px solid black;
+}

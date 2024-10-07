@@ -10,5 +10,7 @@ electron_1.contextBridge.exposeInMainWorld('electronAPI', {
     openSettings: () => electron_1.ipcRenderer.invoke('open-settings-window'),
     onGlobalShortcut: (callback) => electron_1.ipcRenderer.on('global-shortcut-pressed', callback),
     storeGet: (key) => electron_1.ipcRenderer.invoke('store-get', key),
-    storeSet: (key, value) => electron_1.ipcRenderer.invoke('store-set', key, value)
+    storeSet: (key, value) => electron_1.ipcRenderer.invoke('store-set', key, value),
+    storeDelete: (key) => electron_1.ipcRenderer.invoke('store-delete', key),
+    setCard: (callback) => electron_1.ipcRenderer.on('set-card', callback)
 });
