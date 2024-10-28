@@ -5,6 +5,7 @@ import * as path from 'path';
 import * as fs from 'fs'
 import { writeToAimeFile } from './exposed_functions';
 
+
 let mainWindow: BrowserWindow | null;
 let settingsWindow: BrowserWindow | null;
 
@@ -78,11 +79,11 @@ if (!lock) {
             showOverlay();
         })
 
-        globalShortcut.register('F1', () => handleSetHotkey('F1'))
-        globalShortcut.register('F2', () => handleSetHotkey('F2'))
-        globalShortcut.register('F3', () => handleSetHotkey('F3'))
-        globalShortcut.register('F4', () => handleSetHotkey('F4'))
-        globalShortcut.register('F5', () => handleSetHotkey('F5'))
+        globalShortcut.register('Control+1', () => handleSetHotkey('1'))
+        globalShortcut.register('Control+2', () => handleSetHotkey('2'))
+        globalShortcut.register('Control+3', () => handleSetHotkey('3'))
+        globalShortcut.register('Control+4', () => handleSetHotkey('4'))
+        globalShortcut.register('Control+5', () => handleSetHotkey('5'))
         globalShortcut.register('Escape', () => handleSetHotkey('Escape'))
 
         store.delete('card-keys');
@@ -155,7 +156,7 @@ if (!lock) {
 
         try {
             if (!fs.existsSync(filePath)) {
-                const initialData = [];
+                const initialData: any = [];
                 fs.writeFileSync(filePath, JSON.stringify(initialData, null, 2), 'utf-8');
             }
 

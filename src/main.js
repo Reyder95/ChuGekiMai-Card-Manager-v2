@@ -98,11 +98,11 @@ else {
         electron_1.globalShortcut.register('F7', () => {
             showOverlay();
         });
-        electron_1.globalShortcut.register('F1', () => handleSetHotkey('F1'));
-        electron_1.globalShortcut.register('F2', () => handleSetHotkey('F2'));
-        electron_1.globalShortcut.register('F3', () => handleSetHotkey('F3'));
-        electron_1.globalShortcut.register('F4', () => handleSetHotkey('F4'));
-        electron_1.globalShortcut.register('F5', () => handleSetHotkey('F5'));
+        electron_1.globalShortcut.register('Control+1', () => handleSetHotkey('1'));
+        electron_1.globalShortcut.register('Control+2', () => handleSetHotkey('2'));
+        electron_1.globalShortcut.register('Control+3', () => handleSetHotkey('3'));
+        electron_1.globalShortcut.register('Control+4', () => handleSetHotkey('4'));
+        electron_1.globalShortcut.register('Control+5', () => handleSetHotkey('5'));
         electron_1.globalShortcut.register('Escape', () => handleSetHotkey('Escape'));
         store.delete('card-keys');
         if (!store.has('card-keys')) {

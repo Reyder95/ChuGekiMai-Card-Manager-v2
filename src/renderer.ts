@@ -254,10 +254,15 @@ document.getElementById('addCardButton')?.addEventListener('click', () => {
         const currInput = inputData[i] as HTMLInputElement;
 
         totalInput += currInput.value;
+
+        currInput.value = "";
     }
 
-    if (totalInput.length == 20 && (inputName as HTMLInputElement).value.length !== 0)
+    if (totalInput.length == 20 && (inputName as HTMLInputElement).value.length !== 0) {
         confirmCardForm(totalInput, (inputName as HTMLInputElement).value)
+    }
+
+    (inputName as HTMLInputElement).value = ""
 
 })
 

@@ -225,9 +225,12 @@ for (let i = 0; i < idInputs.length; i++) {
     for (let i = 0; i < inputData.length; i++) {
         const currInput = inputData[i];
         totalInput += currInput.value;
+        currInput.value = "";
     }
-    if (totalInput.length == 20 && inputName.value.length !== 0)
+    if (totalInput.length == 20 && inputName.value.length !== 0) {
         confirmCardForm(totalInput, inputName.value);
+    }
+    inputName.value = "";
 });
 (_b = document.getElementById('generateCardButton')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => {
     const inputData = document.getElementsByClassName('idInput');
