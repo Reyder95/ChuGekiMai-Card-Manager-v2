@@ -158,6 +158,10 @@ else {
             exeDirectory = electron_1.app.getAppPath();
         const filePath = path.join(exeDirectory, fileName);
         try {
+            if (!fs.existsSync(filePath)) {
+                const initialData = [];
+                fs.writeFileSync(filePath, JSON.stringify(initialData, null, 2), 'utf-8');
+            }
             const data = fs.readFileSync(filePath, 'utf-8');
             return JSON.parse(data);
         }
