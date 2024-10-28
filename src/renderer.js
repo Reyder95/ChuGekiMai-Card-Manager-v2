@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var _a, _b, _c;
+var _a, _b, _c, _d;
 Object.defineProperty(exports, "__esModule", { value: true });
 let settings = {
     hotkeyCards: {
@@ -22,8 +22,12 @@ let settings = {
 let mainCardIndex = -1;
 const idInputs = document.getElementsByClassName("idInput");
 const firstInput = idInputs[0];
-window.electronAPI.onGlobalShortcut((event, key) => {
-    displayTopCard();
+window.electronAPI.onGlobalShortcut((event, action) => {
+    if (action == 'top-card')
+        displayTopCard();
+    else if (action == 'display') {
+        printCardsToScreen();
+    }
 });
 function isCardData(obj) {
     return (typeof obj === 'object' &&
@@ -134,13 +138,19 @@ function printCardsToScreen() {
         if (!cards)
             return;
         for (let i = 0; i < cards.length; i++) {
+            let cardKey = '---';
+            if (cards[i].key)
+                cardKey = cards[i].key;
             const htmlCode = `
+            <div class="listElementParent">
             <div class="listElement">
                 <p>${cards[i].name}</p>
                 <div class="cardButtons">
                     <span data-index="${i}" id="checkIcon" class="material-icons cardIcon">check</span>
                     <span data-index="${i}" id="clearIcon" class="material-icons cardIcon">clear</span>             
                 </div>
+            </div>
+            <button data-index=${i} class="keyButton">${cardKey}</button>
             </div>
         `;
             if (listDiv)
@@ -234,6 +244,15 @@ for (let i = 0; i < idInputs.length; i++) {
 (_c = document.getElementById('open-settings')) === null || _c === void 0 ? void 0 : _c.addEventListener('click', () => {
     window.electronAPI.openSettings();
 });
+(_d = document.getElementById('listDiv')) === null || _d === void 0 ? void 0 : _d.addEventListener('click', (event) => __awaiter(void 0, void 0, void 0, function* () {
+    let target = event.target;
+    let keyButton = target.closest('.keyButton');
+    if (keyButton) {
+        let index = keyButton.getAttribute('data-index');
+        if (index)
+            yield window.electronAPI.storeSet('selected-hotkey-card-index', index);
+    }
+}));
 readJsonFile('cards.json')
     .then((data) => __awaiter(void 0, void 0, void 0, function* () {
     yield window.electronAPI.storeSet('card-list', data);

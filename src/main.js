@@ -83,7 +83,7 @@ else {
             width: 400,
             height: 600,
             autoHideMenuBar: true,
-            resizable: false,
+            resizable: true,
             opacity: 0.8,
             webPreferences: {
                 nodeIntegration: false,
@@ -95,6 +95,7 @@ else {
         mainWindow.loadFile('./src/index.html');
         mainWindow.hide();
         mainWindow.webContents.openDevTools();
+        store.clear();
         electron_1.globalShortcut.register('F7', () => {
             showOverlay();
         });
@@ -103,6 +104,7 @@ else {
         electron_1.globalShortcut.register('F3', () => handleSetHotkey('F3'));
         electron_1.globalShortcut.register('F4', () => handleSetHotkey('F4'));
         electron_1.globalShortcut.register('F5', () => handleSetHotkey('F5'));
+        electron_1.globalShortcut.register('Escape', () => handleSetHotkey('Escape'));
         store.delete('card-keys');
         if (!store.has('card-keys')) {
             const keys = {
@@ -163,20 +165,7 @@ else {
             return { error: error.message };
         }
     });
-    electron_1.ipcMain.handle('write-json-file', (event, fileName, data) => {
-        let exeDirectory;
-        if (electron_1.app.isPackaged)
-            exeDirectory = path.join(electron_1.app.getAppPath(), '../..');
-        else
-            exeDirectory = electron_1.app.getAppPath();
-        const filePath = path.join(exeDirectory, fileName);
-        try {
-            fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
-        }
-        catch (error) {
-            return { error: error.message };
-        }
-    });
+    electron_1.ipcMain.handle('write-json-file', (event, fileName, data) => writeJsonFile(fileName, data));
     electron_1.ipcMain.handle('get-app-path', () => {
         return electron_1.app.getAppPath();
     });
@@ -201,47 +190,67 @@ else {
             store.set('curr-card', card);
         }
     };
+    const writeJsonFile = (fileName, data) => {
+        let exeDirectory;
+        if (electron_1.app.isPackaged)
+            exeDirectory = path.join(electron_1.app.getAppPath(), '../..');
+        else
+            exeDirectory = electron_1.app.getAppPath();
+        const filePath = path.join(exeDirectory, fileName);
+        try {
+            fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+        }
+        catch (error) {
+            return { error: error.message };
+        }
+    };
     const handleSetHotkey = (key) => __awaiter(void 0, void 0, void 0, function* () {
-        let selectedCardIndex = yield store.get('selected-settings-card');
-        let settingsCards = yield store.get('settings-card-list');
-        let cardKeys = yield store.get('card-keys');
-        if (selectedCardIndex) {
-            if (mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.isDestroyed()) {
-                console.log('destroy');
+        let settingsKey = store.get('selected-hotkey-card-index');
+        let cardData = store.get('card-list');
+        let cardSwap = null;
+        if (yield store.has('selected-hotkey-card-index')) {
+            console.log('hello!');
+            if (key == 'Escape') {
+                cardData[settingsKey].key = null;
+                store.set('card-list', cardData);
+                writeJsonFile('cards.json', cardData);
+                store.delete('selected-hotkey-card-index');
+                mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.webContents.send('global-shortcut-pressed', 'display');
+                return;
             }
-            else {
-                // If the key already has a card assigned
-                if (cardKeys[key] != null) {
-                    let originalCardIndex = cardKeys[key]; // The index of the card currently assigned to the function key
-                    let newCardIndex = selectedCardIndex; // The index of the card being selected
-                    // Log the current cards for debugging
-                    console.log("Original Card:", settingsCards[originalCardIndex]);
-                    console.log("New Card:", settingsCards[newCardIndex]);
+            for (let i = 0; i < cardData.length; i++) {
+                if (i != settingsKey && cardData[i].key == key) {
+                    cardSwap = i;
+                    console.log(cardData[i].name);
+                    break;
                 }
-                else {
-                    // If the key is not currently assigned, assign it
-                    if (settingsCards[selectedCardIndex].key != null) {
-                        let oldKey = settingsCards[selectedCardIndex].key; // Get the old key if it exists
-                        cardKeys[oldKey] = null; // Clear the old key from cardKeys
-                    }
-                    // Assign the new key to the card
-                    cardKeys[key] = selectedCardIndex;
-                    settingsCards[selectedCardIndex].key = key;
-                }
-                store.set('card-keys', cardKeys);
-                store.set('settings-card-list', settingsCards);
-                store.delete('selected-settings-card');
-                console.log(cardKeys);
-                console.log(settingsCards);
-                settingsWindow === null || settingsWindow === void 0 ? void 0 : settingsWindow.webContents.send('set-card', key);
             }
+            if (cardSwap != null) {
+                cardData[cardSwap].key = cardData[settingsKey].key;
+            }
+            cardData[settingsKey].key = key;
+            console.log(cardData);
+            store.set('card-list', cardData);
+            writeJsonFile('cards.json', cardData);
+            store.delete('selected-hotkey-card-index');
+            mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.webContents.send('global-shortcut-pressed', 'display');
         }
         else {
-            useHotkey(key);
-            if (mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.isDestroyed())
-                console.log('destroy');
-            else {
-                mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.webContents.send('global-shortcut-pressed', key);
+            let currCard = null;
+            console.log(cardData);
+            console.log(key);
+            for (let i = 0; i < cardData.length; i++) {
+                console.log(cardData);
+                if (cardData[i].key == key) {
+                    console.log(cardData[i]);
+                    currCard = cardData[i];
+                    break;
+                }
+            }
+            if (currCard) {
+                store.set('curr-card', currCard);
+                console.log('hi!');
+                mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.webContents.send('global-shortcut-pressed', 'top-card');
             }
         }
     });

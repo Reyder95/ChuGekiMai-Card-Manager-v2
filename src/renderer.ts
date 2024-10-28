@@ -15,8 +15,12 @@ const idInputs = document.getElementsByClassName("idInput");
 
 const firstInput = idInputs[0] as HTMLInputElement;
 
-window.electronAPI.onGlobalShortcut((event, key) => {
-    displayTopCard();
+window.electronAPI.onGlobalShortcut((event, action) => {
+    if (action == 'top-card')
+        displayTopCard();
+    else if (action == 'display') {
+        printCardsToScreen();
+    }
 })
 
 function isCardData(obj: any): obj is CardData[] {
@@ -136,14 +140,21 @@ async function printCardsToScreen() {
         return;
 
     for (let i = 0; i < cards.length; i++) {
+        let cardKey = '---';
+
+        if (cards[i].key)
+            cardKey = cards[i].key
         
         const htmlCode = `
+            <div class="listElementParent">
             <div class="listElement">
                 <p>${cards[i].name}</p>
                 <div class="cardButtons">
                     <span data-index="${i}" id="checkIcon" class="material-icons cardIcon">check</span>
                     <span data-index="${i}" id="clearIcon" class="material-icons cardIcon">clear</span>             
                 </div>
+            </div>
+            <button data-index=${i} class="keyButton">${cardKey}</button>
             </div>
         `;
     
@@ -268,6 +279,18 @@ document.getElementById('generateCardButton')?.addEventListener('click', () => {
 
 document.getElementById('open-settings')?.addEventListener('click', () => {
     window.electronAPI.openSettings();
+})
+
+document.getElementById('listDiv')?.addEventListener('click', async (event) => {
+    let target = event.target as HTMLElement;
+    let keyButton = target.closest('.keyButton');
+
+    if (keyButton) {
+        let index = keyButton.getAttribute('data-index');
+
+        if (index) 
+            await window.electronAPI.storeSet('selected-hotkey-card-index', index);
+    }
 })
 
 readJsonFile('cards.json')

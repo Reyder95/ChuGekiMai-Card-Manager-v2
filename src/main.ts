@@ -58,7 +58,7 @@ if (!lock) {
             width: 400,
             height: 600,
             autoHideMenuBar: true,
-            resizable: false,
+            resizable: true,
             opacity: 0.8,
             webPreferences: {
                 nodeIntegration: false,
@@ -74,6 +74,7 @@ if (!lock) {
         mainWindow.hide();
 
         mainWindow.webContents.openDevTools();
+        store.clear();
 
         globalShortcut.register('F7', () => {
             showOverlay();
@@ -84,6 +85,7 @@ if (!lock) {
         globalShortcut.register('F3', () => handleSetHotkey('F3'))
         globalShortcut.register('F4', () => handleSetHotkey('F4'))
         globalShortcut.register('F5', () => handleSetHotkey('F5'))
+        globalShortcut.register('Escape', () => handleSetHotkey('Escape'))
 
         store.delete('card-keys');
 
@@ -161,21 +163,7 @@ if (!lock) {
         }
     })
 
-    ipcMain.handle('write-json-file', (event: IpcMainInvokeEvent, fileName: string, data: CardData[]) => {
-        let exeDirectory;
-
-        if (app.isPackaged)
-            exeDirectory = path.join(app.getAppPath(), '../..');
-        else
-            exeDirectory = app.getAppPath();
-        const filePath = path.join(exeDirectory, fileName);
-
-        try {
-            fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
-        } catch (error: any) {
-            return { error: error.message }
-        }
-    })
+    ipcMain.handle('write-json-file', (event: IpcMainInvokeEvent, fileName: string, data: CardData[]) => writeJsonFile(fileName, data))
 
     ipcMain.handle('get-app-path', () => {
         return app.getAppPath();
@@ -208,56 +196,88 @@ if (!lock) {
             store.set('curr-card', card);
         }
     }
+    
+    const writeJsonFile = (fileName: string, data: CardData[]) => {
+        let exeDirectory;
 
-    const handleSetHotkey = async (key: any) => {
-        let selectedCardIndex: any = await store.get('selected-settings-card');
-        let settingsCards: any = await store.get('settings-card-list');
-        let cardKeys: any = await store.get('card-keys');
+        if (app.isPackaged)
+            exeDirectory = path.join(app.getAppPath(), '../..');
+        else
+            exeDirectory = app.getAppPath();
+        const filePath = path.join(exeDirectory, fileName);
 
-        if (selectedCardIndex) {
-            if (mainWindow?.isDestroyed()) {
-                console.log('destroy')
-            } else {
-
-    // If the key already has a card assigned
-    if (cardKeys[key] != null) {
-        let originalCardIndex = cardKeys[key]; // The index of the card currently assigned to the function key
-        let newCardIndex = selectedCardIndex; // The index of the card being selected
-
-        // Log the current cards for debugging
-        console.log("Original Card:", settingsCards[originalCardIndex]);
-        console.log("New Card:", settingsCards[newCardIndex]);
-        
-        
-    } else {
-        // If the key is not currently assigned, assign it
-        if (settingsCards[selectedCardIndex].key != null) {
-            let oldKey = settingsCards[selectedCardIndex].key; // Get the old key if it exists
-            cardKeys[oldKey] = null; // Clear the old key from cardKeys
+        try {
+            fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+        } catch (error: any) {
+            return { error: error.message }
         }
-
-        // Assign the new key to the card
-        cardKeys[key] = selectedCardIndex; 
-        settingsCards[selectedCardIndex].key = key; 
     }
 
-                store.set('card-keys', cardKeys);
-                store.set('settings-card-list', settingsCards);
-                store.delete('selected-settings-card')
+    const handleSetHotkey = async (key: any) => {
+        let settingsKey: any = store.get('selected-hotkey-card-index');
+        let cardData: any = store.get('card-list');
+        let cardSwap: number | null = null;
 
-                console.log(cardKeys);
-                console.log(settingsCards);
+        if (await store.has('selected-hotkey-card-index')) {
+            console.log('hello!');
 
-                settingsWindow?.webContents.send('set-card', key);
+            if (key == 'Escape') {
+                
+                cardData[settingsKey].key = null;
+                store.set('card-list', cardData);
+                writeJsonFile('cards.json', cardData);
+
+                store.delete('selected-hotkey-card-index');
+
+                mainWindow?.webContents.send('global-shortcut-pressed', 'display');
+
+                return;
             }
+
+                for (let i = 0; i < cardData.length; i++) {
+                    if (i != settingsKey && cardData[i].key == key) {
+                        cardSwap = i;
+                        console.log(cardData[i].name)
+                        break;
+                    }
+                }
+
+                if (cardSwap != null) {
+                    cardData[cardSwap].key = cardData[settingsKey].key
+                }
+
+            cardData[settingsKey].key = key;
+
+            console.log(cardData);
+            store.set('card-list', cardData);
+            writeJsonFile('cards.json', cardData);
+
+            store.delete('selected-hotkey-card-index');
+
+            mainWindow?.webContents.send('global-shortcut-pressed', 'display');
         } else {
-            useHotkey(key);
+            let currCard = null;
 
-            if (mainWindow?.isDestroyed())
-                console.log('destroy')
-            else {
-                mainWindow?.webContents.send('global-shortcut-pressed', key);
+            console.log(cardData);
+            console.log(key);
+
+            for (let i = 0; i < cardData.length; i++) {
+                console.log(cardData);
+                if (cardData[i].key == key) {
+                    console.log(cardData[i])
+                    currCard = cardData[i]
+                    break;
+                }
             }
+
+            if (currCard) {
+                store.set('curr-card', currCard);
+                console.log('hi!');
+
+                mainWindow?.webContents.send('global-shortcut-pressed', 'top-card');
+            }
+
+
         }
     }
 }
