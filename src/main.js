@@ -94,7 +94,6 @@ else {
         console.log(__dirname);
         mainWindow.loadFile('./src/index.html');
         mainWindow.hide();
-        mainWindow.webContents.openDevTools();
         store.clear();
         electron_1.globalShortcut.register('F7', () => {
             showOverlay();

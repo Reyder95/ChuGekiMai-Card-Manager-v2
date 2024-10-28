@@ -72,8 +72,6 @@ if (!lock) {
         mainWindow.loadFile('./src/index.html');
 
         mainWindow.hide();
-
-        mainWindow.webContents.openDevTools();
         store.clear();
 
         globalShortcut.register('F7', () => {
